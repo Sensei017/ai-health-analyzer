@@ -81,8 +81,3 @@ ai-health-analyzer/
 
 ---
 
-## 📌 Subject Info
-
-- **Subject:** Artificial Intelligence (AI)
-- **Test:** FT3 — Application Development Project
-- **Units Covered:** Unit 1 · Unit 4 · Unit 5
