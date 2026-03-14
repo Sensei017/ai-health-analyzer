@@ -40,11 +40,10 @@ You fill in a detailed 5-step form about your body, daily routine, habits, diet,
 
 ## 🧠 AI Concepts Used
 
-| Unit | Topic | How It's Used |
-|------|-------|--------------|
-| Unit 1 | Problem Solving & AI Techniques | Disease risk formulated as AI search problem — patient profile = initial state, diagnosis = goal state |
-| Unit 4 | Knowledge Representation | Rule-based Knowledge Base with 36+ IF-THEN propositional logic rules across 6 disease categories |
-| Unit 5 | Expert System & Planning | Full Expert System architecture — Knowledge Base + Inference Engine + Planning Agent |
+
+Problem Solving & AI Techniques | Disease risk formulated as AI search problem — patient profile = initial state, diagnosis = goal state |
+Knowledge Representation | Rule-based Knowledge Base with 36+ IF-THEN propositional logic rules across 6 disease categories |
+Expert System & Planning | Full Expert System architecture — Knowledge Base + Inference Engine + Planning Agent |
 
 ---
 
