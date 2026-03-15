@@ -953,12 +953,145 @@ function resetAll(){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
+
+// ═══════════════════════════
+// LOCAL STORAGE — AUTO SAVE & HISTORY
+// ═══════════════════════════
+function saveFormData(data){
+  try{ localStorage.setItem('healthFormData',JSON.stringify(data)); }catch(e){}
+}
+function loadFormData(){
+  try{
+    const saved=localStorage.getItem('healthFormData');
+    if(!saved)return;
+    const d=JSON.parse(saved);
+    ['age','height','weight'].forEach(id=>{if(d[id]&&document.getElementById(id))document.getElementById(id).value=d[id];});
+    if(d.sex)document.getElementById('sex').value=d.sex;
+    [{id:'sleep',s:'h'},{id:'sitting',s:'h'},{id:'stress',s:''},{id:'screentime',s:'h'}].forEach(({id,s})=>{
+      if(d[id]!==undefined){document.getElementById(id).value=d[id];document.getElementById(id+'Val').textContent=d[id]+s;}
+    });
+    const optMap={workType:d.workType,exercise:d.exercise,water:d.water,smoking:d.smoking,
+      alcohol:d.alcohol,junkfood:d.junkfood,meds:d.meds,meals:d.meals,
+      dietType:d.dietType,fruitveg:d.fruitveg,breakfast:d.breakfast,lateeat:d.lateeat,doctorVisit:d.doctorVisit};
+    Object.entries(optMap).forEach(([group,val])=>{
+      if(!val)return;
+      document.querySelectorAll('#'+group+' .option-btn').forEach(b=>{
+        if(b.querySelector('.opt-label').textContent.trim()===val)b.classList.add('selected');
+      });
+    });
+    if(d.fh)document.querySelectorAll('#familyHistory .check-tag').forEach(t=>{if(d.fh.some(f=>t.textContent.trim()===f))t.classList.add('on');});
+    if(d.cc)document.querySelectorAll('#currentConditions .check-tag').forEach(t=>{if(d.cc.some(f=>t.textContent.trim()===f))t.classList.add('on');});
+    if(d.extra)document.getElementById('extraNotes').value=d.extra;
+    calcBMI();
+    const banner=document.createElement('div');
+    banner.id='savedBanner';
+    banner.style.cssText='position:fixed;bottom:1.2rem;right:1.2rem;background:rgba(0,212,180,0.12);border:1px solid rgba(0,212,180,0.35);color:#00d4b4;padding:.6rem 1.1rem;border-radius:10px;font-size:.8rem;font-weight:600;z-index:999;display:flex;align-items:center;gap:.5rem;';
+    banner.innerHTML='✅ Previous data loaded! <button onclick="clearSavedData()" style="background:none;border:none;color:#637a99;cursor:pointer;font-size:.75rem;margin-left:.4rem">Clear</button>';
+    document.body.appendChild(banner);
+    setTimeout(()=>{if(banner.parentNode)banner.remove();},4000);
+  }catch(e){}
+}
+function clearSavedData(){
+  try{localStorage.removeItem('healthFormData');}catch(e){}
+  const b=document.getElementById('savedBanner');if(b)b.remove();
+}
+function saveToHistory(data,results,overall){
+  try{
+    const history=JSON.parse(localStorage.getItem('healthHistory')||'[]');
+    history.unshift({date:new Date().toLocaleString(),age:data.age,sex:data.sex,height:data.height,weight:data.weight,bmi:data.bmi,overall,
+      diseases:Object.entries(results).map(([k,v])=>({name:v.name,score:v.score}))});
+    localStorage.setItem('healthHistory',JSON.stringify(history.slice(0,10)));
+  }catch(e){}
+}
+
+// ═══════════════════════════
+// EXCEL / CSV EXPORT
+// ═══════════════════════════
+function exportToExcel(data,results,overall){
+  const risk=overall<25?'Low':overall<50?'Moderate':overall<75?'High':'Critical';
+  const date=new Date().toLocaleString();
+  let csv='AI HEALTH ANALYZER — Personal Report\n';
+  csv+=`Generated:,${date}\n\n`;
+  csv+='PERSONAL INFORMATION\n';
+  csv+=`Age,${data.age}\nSex,${data.sex}\nHeight (cm),${data.height}\nWeight (kg),${data.weight}\nBMI,${data.bmi}\nOverall Risk Score,${overall}%\nRisk Level,${risk}\n\n`;
+  csv+='LIFESTYLE DATA\n';
+  csv+=`Sleep Hours,${data.sleep}h\nDaily Sitting,${data.sitting}h\nStress Level,${data.stress}/10\nScreen Time,${data.screentime}h\nWork Type,${data.workType}\nExercise Frequency,${data.exercise}\nDaily Water Intake,${data.water}\nSmoking,${data.smoking}\nAlcohol,${data.alcohol}\nJunk Food,${data.junkfood}\nDiet Type,${data.dietType}\nMeals Per Day,${data.meals}\nFruit & Veg Intake,${data.fruitveg}\nSkips Breakfast,${data.breakfast}\nLate Night Eating,${data.lateeat}\n\n`;
+  csv+='DISEASE RISK SCORES\nDisease,Risk Score,Risk Level,Top Factors\n';
+  Object.values(results).sort((a,b)=>b.score-a.score).forEach(r=>{
+    const rl=r.score<25?'Low':r.score<50?'Moderate':r.score<75?'High':'Critical';
+    csv+=`${r.name},${r.score}%,${rl},"${r.factors.slice(0,3).join(' | ')}"\n`;
+  });
+  csv+=`\nOVERALL SCORE,${overall}%,${risk}\n\n`;
+  csv+='MEDICAL HISTORY\n';
+  csv+=`Family History,"${data.fh.join(', ')||'None'}"\nCurrent Symptoms,"${data.cc.join(', ')||'None'}"\nDoctor Visits,${data.doctorVisit}\n\n`;
+  try{
+    const history=JSON.parse(localStorage.getItem('healthHistory')||'[]');
+    if(history.length>1){
+      csv+=`ANALYSIS HISTORY\nDate,Age,BMI,Overall Risk,Risk Level\n`;
+      history.forEach(h=>{const hl=h.overall<25?'Low':h.overall<50?'Moderate':h.overall<75?'High':'Critical';csv+=`${h.date},${h.age},${h.bmi},${h.overall}%,${hl}\n`;});
+    }
+  }catch(e){}
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=`AI-Health-Report-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();URL.revokeObjectURL(url);
+}
+
+// ═══════════════════════════
+// PATCH buildResults
+// ═══════════════════════════
+const _orig=buildResults;
+buildResults=function(data){
+  saveFormData(data);
+  _orig(data);
+  setTimeout(()=>{
+    const res=inferenceEngine(data);
+    const sc=Object.values(res).map(r=>r.score);
+    const ov=Math.round(sc.reduce((a,b)=>a+b,0)/sc.length);
+    saveToHistory(data,res,ov);
+    // Export button
+    if(!document.getElementById('exportBtn')){
+      const btn=document.createElement('button');
+      btn.id='exportBtn';
+      btn.innerHTML='📥 Download My Report (Excel / CSV)';
+      btn.style.cssText="width:100%;margin-top:.8rem;padding:.85rem;background:linear-gradient(135deg,rgba(34,211,160,0.15),rgba(34,211,160,0.08));border:1px solid rgba(34,211,160,0.35);color:#22d3a0;border-radius:11px;font-size:.92rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.6rem;";
+      btn.onclick=()=>exportToExcel(data,res,ov);
+      const rb=document.querySelector('.btn-reset');rb.parentNode.insertBefore(btn,rb);
+    }
+    // History section
+    try{
+      const history=JSON.parse(localStorage.getItem('healthHistory')||'[]');
+      if(history.length>=2&&!document.getElementById('historySection')){
+        const sec=document.createElement('div');
+        sec.id='historySection';
+        sec.style.cssText='background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.3rem;margin-top:.9rem;';
+        let html='<div style="font-family:Calibri,sans-serif;font-size:.95rem;font-weight:600;color:var(--white);margin-bottom:.8rem;">📈 Your Previous Analyses</div>';
+        history.slice(0,5).forEach((h,i)=>{
+          const col=h.overall<25?'#22d3a0':h.overall<50?'#f5a623':h.overall<75?'#ff5252':'#ff0000';
+          const rl=h.overall<25?'Low':h.overall<50?'Moderate':h.overall<75?'High':'Critical';
+          html+=`<div style="display:flex;align-items:center;justify-content:space-between;padding:.6rem 0;border-bottom:1px solid var(--border)">
+            <div><div style="font-size:.82rem;font-weight:600;color:var(--text)">${i===0?'✅ Current':'Analysis #'+(i+1)}</div>
+            <div style="font-size:.72rem;color:var(--muted)">${h.date} · BMI ${h.bmi} · Age ${h.age}</div></div>
+            <div style="text-align:right"><div style="font-size:1.1rem;font-weight:700;color:${col}">${h.overall}%</div>
+            <div style="font-size:.7rem;color:${col}">${rl} Risk</div></div></div>`;
+        });
+        html+='<button onclick="(()=>{try{localStorage.removeItem(\'healthHistory\');}catch(e){}document.getElementById(\'historySection\').remove();})()" style="width:100%;margin-top:.6rem;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:.4rem;font-size:.75rem;cursor:pointer;">🗑️ Clear History</button>';
+        sec.innerHTML=html;
+        const rb=document.querySelector('.btn-reset');rb.parentNode.insertBefore(sec,rb);
+      }
+    }catch(e){}
+  },150);
+};
+
+
 // fix range val IDs
 document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('sleepVal').textContent='7h';
   document.getElementById('sittingVal').textContent='8h';
   document.getElementById('stressVal').textContent='5';
   document.getElementById('screentimeVal').textContent='4h';
+  loadFormData();
 });
 </script>
 </body>
