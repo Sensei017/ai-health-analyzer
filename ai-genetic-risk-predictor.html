@@ -291,20 +291,20 @@ body::before{content:'';position:fixed;inset:0;
   <div class="ctitle"><span>📏</span> Body Measurements</div>
   <div class="csub">Your height, weight, and age are used to calculate your BMI and set baseline risk thresholds.</div>
   <div class="fgrid">
-    <div class="fg"><label>Age (years)</label><input type="number" id="age" placeholder="e.g. 22" min="5" max="100" oninput="calcBMI()"/></div>
+    <div class="fg"><label>Age (years)</label><input type="number" id="age" placeholder="e.g. 22" min="5" max="100" oninput="calcBMI();hideErr('s1')"/></div>
     <div class="fg"><label>Biological Sex</label>
-      <select id="sex"><option value="">Select</option><option value="male">Male</option><option value="female">Female</option><option value="other">Prefer not to say</option></select>
+      <select id="sex" onchange="hideErr('s1')"><option value="">Select</option><option value="male">Male</option><option value="female">Female</option><option value="other">Prefer not to say</option></select>
     </div>
-    <div class="fg"><label>Height (cm)</label><input type="number" id="height" placeholder="e.g. 170" min="50" max="250" oninput="calcBMI()"/></div>
-    <div class="fg"><label>Weight (kg)</label><input type="number" id="weight" placeholder="e.g. 65" min="10" max="300" oninput="calcBMI()"/></div>
+    <div class="fg"><label>Height (cm)</label><input type="number" id="height" placeholder="e.g. 170" min="50" max="250" oninput="calcBMI();hideErr('s1')"/></div>
+    <div class="fg"><label>Weight (kg)</label><input type="number" id="weight" placeholder="e.g. 65" min="10" max="300" oninput="calcBMI();hideErr('s1')"/></div>
   </div>
   <div class="bmi-box" id="bmiBox" style="display:none">
     <div><div class="bmi-num" id="bmiVal">--</div><div class="bmi-lbl">BMI</div></div>
-    <div style="flex:1">
+    <div style="flex:1;min-width:0;overflow:hidden">
       <div class="bmi-bar-bg"><div class="bmi-bar-fill" id="bmiBar" style="width:0"></div></div>
-      <div style="display:flex;justify-content:space-between;font-size:.6rem;color:var(--mu);margin-top:3px"><span>Under</span><span>Normal</span><span>Over</span><span>Obese</span></div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);font-size:.52rem;color:var(--mu);margin-top:3px;text-align:center"><span>Under</span><span>Normal</span><span>Over</span><span>Obese</span></div>
     </div>
-    <div id="bmiCat" style="font-size:.76rem;font-weight:700;min-width:66px;text-align:right"></div>
+    <div id="bmiCat" style="font-size:.76rem;font-weight:700;min-width:52px;text-align:right;flex-shrink:0"></div>
   </div>
   <div class="btnrow"><button class="btnnext" onclick="goNext(1)">Continue →</button></div>
 </div>
@@ -613,9 +613,9 @@ function validate(s){
     const weight=document.getElementById('weight').value.trim();
     const sex=document.getElementById('sex').value;
     const missing=[];
-    if(!age||isNaN(age)||Number(age)<5||Number(age)>100) missing.push('Age (5–100)');
-    if(!height||isNaN(height)||Number(height)<50||Number(height)>250) missing.push('Height (50–250 cm)');
-    if(!weight||isNaN(weight)||Number(weight)<10||Number(weight)>300) missing.push('Weight (10–300 kg)');
+    if(!age||isNaN(age)||Number(age)<5||Number(age)>100) missing.push('Age');
+    if(!height||isNaN(height)||Number(height)<50||Number(height)>250) missing.push('Height');
+    if(!weight||isNaN(weight)||Number(weight)<10||Number(weight)>300) missing.push('Weight');
     if(!sex) missing.push('Biological Sex');
     if(missing.length){showErr('s1','Please fill in: '+missing.join(', '));return false;}
     hideErr('s1');return true;
