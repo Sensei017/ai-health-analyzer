@@ -4,1094 +4,1300 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>AI Health Analyzer — Genetic Risk & Lifestyle Predictor</title>
-<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Instrument+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root{
-  --bg:#04080f;--surface:#0c1220;--surface2:#111c2e;--surface3:#162035;
-  --border:rgba(99,179,237,0.1);--border2:rgba(99,179,237,0.2);
+  --bg:#04080f;--s1:#0c1220;--s2:#111c2e;--s3:#162035;
+  --b1:rgba(99,179,237,0.08);--b2:rgba(99,179,237,0.18);
   --teal:#00d4b4;--blue:#3b9eff;--purple:#8b5cf6;--amber:#f5a623;
-  --red:#ff5252;--green:#22d3a0;--text:#e2eaf7;--muted:#637a99;
-  --muted2:#8899bb;--white:#ffffff;
+  --red:#ff5252;--green:#22d3a0;--pink:#f472b6;
+  --tx:#e2eaf7;--mu:#637a99;--mu2:#8899bb;--wh:#ffffff;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
-body{font-family:'Instrument Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
-body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;
-  background:radial-gradient(ellipse 60% 40% at 10% 5%,rgba(0,212,180,0.05) 0%,transparent 60%),
-    radial-gradient(ellipse 50% 50% at 90% 90%,rgba(59,158,255,0.05) 0%,transparent 60%);
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse 70% 50% at 5% 0%,rgba(0,212,180,0.06) 0%,transparent 55%),
+    radial-gradient(ellipse 60% 60% at 95% 100%,rgba(59,158,255,0.05) 0%,transparent 55%),
+    radial-gradient(ellipse 40% 40% at 50% 40%,rgba(139,92,246,0.03) 0%,transparent 55%);
   pointer-events:none;z-index:0;}
-::-webkit-scrollbar{width:5px;}
-::-webkit-scrollbar-track{background:var(--bg);}
-::-webkit-scrollbar-thumb{background:var(--teal);border-radius:3px;}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-thumb{background:var(--teal);border-radius:2px;}
 
-/* HEADER */
-.header{position:relative;z-index:1;text-align:center;padding:3rem 1rem 1.5rem;}
-.header-icon{width:68px;height:68px;background:linear-gradient(135deg,rgba(0,212,180,0.15),rgba(59,158,255,0.1));border:1px solid rgba(0,212,180,0.3);border-radius:18px;display:inline-flex;align-items:center;justify-content:center;font-size:1.9rem;margin-bottom:1rem;animation:pulse 3s ease-in-out infinite;}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(0,212,180,0.3)}50%{box-shadow:0 0 0 14px rgba(0,212,180,0)}}
-.header h1{font-family:'Clash Display',sans-serif;font-size:clamp(1.9rem,4.5vw,3rem);font-weight:700;letter-spacing:-.02em;background:linear-gradient(135deg,var(--white) 30%,var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.header p{color:var(--muted2);font-size:.92rem;margin-top:.45rem;max-width:500px;margin-inline:auto;line-height:1.6;}
+/* ── HEADER ── */
+.hdr{position:relative;z-index:1;text-align:center;padding:2.8rem 1rem 1.2rem;}
+.hdr-icon{width:64px;height:64px;background:linear-gradient(135deg,rgba(0,212,180,0.18),rgba(59,158,255,0.1));
+  border:1px solid rgba(0,212,180,0.28);border-radius:16px;
+  display:inline-flex;align-items:center;justify-content:center;font-size:1.8rem;
+  margin-bottom:.9rem;animation:hpulse 3s ease-in-out infinite;}
+@keyframes hpulse{0%,100%{box-shadow:0 0 0 0 rgba(0,212,180,0.25)}50%{box-shadow:0 0 0 12px rgba(0,212,180,0)}}
+.hdr h1{font-family:'Syne',sans-serif;font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;
+  letter-spacing:-.03em;background:linear-gradient(135deg,#fff 25%,var(--teal));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hdr p{color:var(--mu2);font-size:.88rem;margin-top:.4rem;max-width:480px;margin-inline:auto;line-height:1.6;}
 
+/* ── PROGRESS ── */
+.prog-wrap{position:relative;z-index:1;max-width:660px;margin:0 auto;padding:0 1.5rem 1rem;}
+.prog-steps{display:flex;align-items:center;}
+.sdot{width:32px;height:32px;border-radius:50%;background:var(--s2);border:2px solid var(--b2);
+  display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:600;
+  color:var(--mu);transition:all .3s;flex-shrink:0;font-family:'Syne',sans-serif;}
+.sdot.active{background:var(--teal);border-color:var(--teal);color:#04080f;}
+.sdot.done{background:rgba(0,212,180,0.1);border-color:var(--teal);color:var(--teal);}
+.sline{flex:1;height:2px;background:var(--b2);margin:0 3px;transition:background .3s;}
+.sline.done{background:var(--teal);}
+.slabels{display:flex;justify-content:space-between;margin-top:.3rem;}
+.slabel{font-size:.6rem;color:var(--mu);text-align:center;width:32px;line-height:1.2;}
 
-/* PROGRESS */
-.progress-wrap{position:relative;z-index:1;max-width:680px;margin:0 auto;padding:0 1.5rem 1.2rem;}
-.progress-steps{display:flex;align-items:center;justify-content:space-between;}
-.step-dot{width:34px;height:34px;border-radius:50%;background:var(--surface2);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:600;color:var(--muted);transition:all .3s;flex-shrink:0;}
-.step-dot.active{background:var(--teal);border-color:var(--teal);color:#04080f;}
-.step-dot.done{background:rgba(0,212,180,0.12);border-color:var(--teal);color:var(--teal);}
-.step-line{flex:1;height:2px;background:var(--border2);margin:0 3px;transition:background .3s;}
-.step-line.done{background:var(--teal);}
-.step-labels{display:flex;justify-content:space-between;margin-top:.35rem;}
-.step-label{font-size:.62rem;color:var(--muted);text-align:center;width:34px;line-height:1.2;}
+/* ── CONTAINER ── */
+.wrap{position:relative;z-index:1;max-width:660px;margin:0 auto;padding:0 1.5rem 5rem;}
 
-/* CONTAINER */
-.container{position:relative;z-index:1;max-width:680px;margin:0 auto;padding:0 1.5rem 5rem;}
+/* ── CARDS ── */
+.card{background:var(--s1);border:1px solid var(--b1);border-radius:16px;
+  padding:1.7rem;margin-bottom:.9rem;display:none;animation:fin .35s ease;}
+.card.active{display:block;}
+@keyframes fin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.ctitle{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:var(--wh);
+  margin-bottom:.2rem;display:flex;align-items:center;gap:.5rem;}
+.csub{color:var(--mu2);font-size:.8rem;margin-bottom:1.2rem;line-height:1.55;}
 
-/* SECTION CARD */
-.section-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:1.8rem;margin-bottom:1rem;display:none;animation:fadeIn .35s ease;}
-.section-card.active{display:block;}
-@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.section-title{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:600;color:var(--white);margin-bottom:.25rem;display:flex;align-items:center;gap:.55rem;}
-.section-title span{font-size:1.25rem;}
-.section-sub{color:var(--muted2);font-size:.82rem;margin-bottom:1.3rem;line-height:1.55;}
+/* ── FORM ── */
+.fg{display:flex;flex-direction:column;gap:.32rem;margin-bottom:.9rem;}
+.fg label{font-size:.68rem;color:var(--mu2);font-weight:500;letter-spacing:.04em;text-transform:uppercase;}
+.fg input,.fg select,.fg textarea{
+  background:var(--s2);border:1px solid var(--b1);color:var(--tx);
+  padding:.58rem .82rem;border-radius:8px;font-size:.88rem;
+  font-family:'DM Sans',sans-serif;outline:none;
+  transition:border-color .2s,box-shadow .2s;-webkit-appearance:none;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{
+  border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,212,180,0.08);}
+.fg select option{background:#0c1220;}
+.fg textarea{resize:vertical;min-height:68px;}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;}
+@media(max-width:500px){.fgrid{grid-template-columns:1fr;}}
 
-/* FORM */
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;}
-@media(max-width:520px){.form-grid{grid-template-columns:1fr;}}
-.form-group{display:flex;flex-direction:column;gap:.35rem;}
-.form-group label{font-size:.72rem;color:var(--muted2);font-weight:500;letter-spacing:.03em;text-transform:uppercase;}
-.form-group input,.form-group select,.form-group textarea{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:.6rem .85rem;border-radius:9px;font-size:.9rem;font-family:'Instrument Sans',sans-serif;outline:none;transition:border-color .2s,box-shadow .2s;-webkit-appearance:none;}
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,212,180,0.09);}
-.form-group select option{background:#0c1220;}
-.form-group textarea{resize:vertical;min-height:70px;}
-
-/* BMI DISPLAY */
-.bmi-display{background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:.9rem 1.1rem;display:flex;align-items:center;justify-content:space-between;margin-top:.9rem;gap:.8rem;}
-.bmi-val{font-family:'Clash Display',sans-serif;font-size:1.7rem;font-weight:700;}
-.bmi-label{font-size:.72rem;color:var(--muted);}
-.bmi-bar-wrap{flex:1;}
-.bmi-bar-bg{height:7px;background:rgba(255,255,255,0.05);border-radius:4px;overflow:hidden;}
-.bmi-bar-fill{height:100%;border-radius:4px;transition:width .6s ease,background .4s;}
-.bmi-sub{display:flex;justify-content:space-between;font-size:.6rem;color:var(--muted);margin-top:3px;}
+/* BMI */
+.bmi-box{background:var(--s2);border:1px solid var(--b1);border-radius:10px;
+  padding:.85rem 1rem;display:flex;align-items:center;gap:.8rem;margin-top:.8rem;}
+.bmi-num{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;}
+.bmi-lbl{font-size:.68rem;color:var(--mu);}
+.bmi-bar-bg{height:6px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden;margin-top:4px;}
+.bmi-bar-fill{height:100%;border-radius:3px;transition:width .6s,background .4s;}
 
 /* OPTIONS */
-.options-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.55rem;margin-top:.3rem;}
-.option-btn{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:.65rem .4rem;cursor:pointer;text-align:center;transition:all .18s;user-select:none;}
-.option-btn:hover{border-color:rgba(0,212,180,0.3);}
-.option-btn.selected{background:rgba(0,212,180,0.09);border-color:var(--teal);color:var(--teal);}
-.option-btn .opt-icon{font-size:1.3rem;display:block;margin-bottom:.2rem;}
-.option-btn .opt-label{font-size:.77rem;font-weight:500;}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.5rem;margin-top:.3rem;}
+.opt{background:var(--s2);border:1px solid var(--b1);border-radius:8px;
+  padding:.6rem .35rem;cursor:pointer;text-align:center;transition:all .18s;user-select:none;}
+.opt:hover{border-color:rgba(0,212,180,0.28);}
+.opt.sel{background:rgba(0,212,180,0.08);border-color:var(--teal);color:var(--teal);}
+.opt .oi{font-size:1.2rem;display:block;margin-bottom:.18rem;}
+.opt .ol{font-size:.74rem;font-weight:500;}
 
 /* RANGE */
-.range-wrap{margin-top:.4rem;}
-.range-row{display:flex;align-items:center;gap:.85rem;}
-.range-row input[type=range]{flex:1;appearance:none;height:5px;background:var(--surface3);border-radius:3px;outline:none;cursor:pointer;}
-.range-row input[type=range]::-webkit-slider-thumb{appearance:none;width:17px;height:17px;background:var(--teal);border-radius:50%;cursor:pointer;box-shadow:0 0 5px rgba(0,212,180,0.4);}
-.range-val{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:.28rem .65rem;font-size:.88rem;font-weight:600;color:var(--teal);min-width:52px;text-align:center;}
-.range-labels{display:flex;justify-content:space-between;font-size:.65rem;color:var(--muted);margin-top:.28rem;}
+.rng{margin-top:.35rem;}
+.rrow{display:flex;align-items:center;gap:.8rem;}
+.rrow input[type=range]{flex:1;appearance:none;height:4px;background:var(--s3);border-radius:2px;outline:none;cursor:pointer;}
+.rrow input[type=range]::-webkit-slider-thumb{appearance:none;width:16px;height:16px;background:var(--teal);border-radius:50%;cursor:pointer;box-shadow:0 0 5px rgba(0,212,180,0.4);}
+.rval{background:var(--s2);border:1px solid var(--b1);border-radius:6px;padding:.25rem .6rem;
+  font-size:.85rem;font-weight:600;color:var(--teal);min-width:48px;text-align:center;}
+.rlabels{display:flex;justify-content:space-between;font-size:.62rem;color:var(--mu);margin-top:.25rem;}
 
-/* CHECK TAGS */
-.check-tags{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.3rem;}
-.check-tag{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:.37rem .75rem;cursor:pointer;font-size:.8rem;transition:all .18s;user-select:none;}
-.check-tag:hover{border-color:rgba(0,212,180,0.3);}
-.check-tag.on{background:rgba(0,212,180,0.09);border-color:var(--teal);color:var(--teal);}
+/* TAGS */
+.ctags{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.28rem;}
+.ctag{background:var(--s2);border:1px solid var(--b1);border-radius:6px;
+  padding:.34rem .7rem;cursor:pointer;font-size:.78rem;transition:all .18s;user-select:none;}
+.ctag:hover{border-color:rgba(0,212,180,0.28);}
+.ctag.on{background:rgba(0,212,180,0.08);border-color:var(--teal);color:var(--teal);}
+
+/* OTHER DISEASE BOX */
+.other-disease-box{background:rgba(139,92,246,0.07);border:1px solid rgba(139,92,246,0.25);
+  border-radius:12px;padding:1.1rem;margin-top:.8rem;display:none;}
+.other-disease-box.show{display:block;animation:fin .3s ease;}
+.other-disease-box .fg label{color:#a78bfa;}
+.other-disease-box textarea{border-color:rgba(139,92,246,0.25)!important;}
+.other-disease-box textarea:focus{border-color:#8b5cf6!important;box-shadow:0 0 0 3px rgba(139,92,246,0.08)!important;}
+
+/* SAVED BADGE */
+.saved-badge{display:inline-flex;align-items:center;gap:.4rem;background:rgba(0,212,180,0.09);
+  border:1px solid rgba(0,212,180,0.25);color:var(--teal);padding:.3rem .8rem;
+  border-radius:20px;font-size:.72rem;font-weight:600;margin-bottom:.8rem;}
 
 /* BUTTONS */
-.btn-row{display:flex;gap:.75rem;margin-top:1.4rem;}
-.btn-next{flex:1;background:linear-gradient(135deg,var(--teal),#00a896);color:#04080f;border:none;border-radius:11px;padding:.8rem;font-family:'Clash Display',sans-serif;font-size:.92rem;font-weight:600;cursor:pointer;transition:transform .15s,box-shadow .15s;box-shadow:0 4px 18px rgba(0,212,180,0.22);}
-.btn-next:hover{transform:translateY(-2px);box-shadow:0 7px 24px rgba(0,212,180,0.32);}
-.btn-back{background:var(--surface2);border:1px solid var(--border);color:var(--muted2);border-radius:11px;padding:.8rem 1.1rem;font-family:'Instrument Sans',sans-serif;font-size:.88rem;cursor:pointer;transition:border-color .18s,color .18s;}
-.btn-back:hover{border-color:var(--teal);color:var(--teal);}
+.btnrow{display:flex;gap:.7rem;margin-top:1.3rem;}
+.btnnext{flex:1;background:linear-gradient(135deg,var(--teal),#00a896);color:#04080f;
+  border:none;border-radius:10px;padding:.78rem;font-family:'Syne',sans-serif;
+  font-size:.9rem;font-weight:700;cursor:pointer;transition:transform .15s,box-shadow .15s;
+  box-shadow:0 4px 18px rgba(0,212,180,0.2);}
+.btnnext:hover{transform:translateY(-2px);box-shadow:0 7px 24px rgba(0,212,180,0.3);}
+.btnback{background:var(--s2);border:1px solid var(--b1);color:var(--mu2);
+  border-radius:10px;padding:.78rem 1rem;font-family:'DM Sans',sans-serif;
+  font-size:.86rem;cursor:pointer;transition:all .18s;}
+.btnback:hover{border-color:var(--teal);color:var(--teal);}
 
 /* LOADING */
-#loadingScreen{display:none;text-align:center;padding:2.5rem 1rem;}
-.dna-loader{width:56px;height:56px;margin:0 auto 1.2rem;border:3px solid rgba(0,212,180,0.08);border-top:3px solid var(--teal);border-radius:50%;animation:spin .75s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-steps{display:flex;flex-direction:column;gap:.45rem;max-width:270px;margin:.8rem auto 0;}
-.loading-step{display:flex;align-items:center;gap:.55rem;padding:.45rem .75rem;background:var(--surface);border-radius:7px;font-size:.79rem;color:var(--muted);opacity:0;transition:opacity .3s,color .3s;}
-.loading-step.show{opacity:1;}
-.loading-step.done{color:var(--teal);}
-.loading-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0;}
+#loadScr{display:none;text-align:center;padding:2.5rem 1rem;}
+.spin{width:52px;height:52px;margin:0 auto 1.1rem;border:3px solid rgba(0,212,180,0.08);
+  border-top:3px solid var(--teal);border-radius:50%;animation:sp .75s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg)}}
+.lsteps{display:flex;flex-direction:column;gap:.4rem;max-width:260px;margin:.7rem auto 0;}
+.lstep{display:flex;align-items:center;gap:.5rem;padding:.42rem .7rem;background:var(--s1);
+  border-radius:6px;font-size:.77rem;color:var(--mu);opacity:0;transition:opacity .3s,color .3s;}
+.lstep.show{opacity:1;}.lstep.done{color:var(--teal);}
+.ldot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;}
 
-/* RESULTS */
-#resultsScreen{display:none;}
-.results-header{text-align:center;padding:1.2rem 0 .8rem;}
-.results-header h2{font-family:'Clash Display',sans-serif;font-size:1.7rem;font-weight:700;background:linear-gradient(135deg,var(--white),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.results-header p{color:var(--muted2);font-size:.83rem;margin-top:.25rem;}
+/* ── RESULTS ── */
+#resScr{display:none;}
+.rhead{text-align:center;padding:1rem 0 .7rem;}
+.rhead h2{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;
+  background:linear-gradient(135deg,var(--wh),var(--teal));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.rhead p{color:var(--mu2);font-size:.8rem;margin-top:.22rem;}
 
-/* RISK OVERVIEW */
-.risk-overview{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:1.6rem;margin-bottom:.9rem;position:relative;overflow:hidden;}
-.risk-overview::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--teal),var(--blue),var(--purple));}
-.risk-grid{display:grid;grid-template-columns:auto 1fr;gap:1.3rem;align-items:center;}
-@media(max-width:460px){.risk-grid{grid-template-columns:1fr;text-align:center;}}
-.score-circle{position:relative;width:115px;height:115px;flex-shrink:0;}
-.score-circle svg{transform:rotate(-90deg);}
-.score-inner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
-.score-num{font-family:'Clash Display',sans-serif;font-size:1.8rem;font-weight:700;line-height:1;}
-.score-tiny{font-size:.62rem;color:var(--muted);}
-.risk-badge{display:inline-block;padding:.22rem .85rem;border-radius:20px;font-size:.72rem;font-weight:600;margin-bottom:.5rem;}
-.risk-info h3{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:600;margin-bottom:.35rem;}
-.risk-desc{font-size:.82rem;color:var(--muted2);line-height:1.6;}
+/* SCORE CARD */
+.score-card{background:var(--s1);border:1px solid var(--b1);border-radius:16px;
+  padding:1.5rem;margin-bottom:.8rem;position:relative;overflow:hidden;}
+.score-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--teal),var(--blue),var(--purple));}
+.sgrid{display:grid;grid-template-columns:auto 1fr;gap:1.2rem;align-items:center;}
+@media(max-width:440px){.sgrid{grid-template-columns:1fr;text-align:center;}}
+.scirc{position:relative;width:110px;height:110px;flex-shrink:0;}
+.scirc svg{transform:rotate(-90deg);}
+.sinner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
+.snum{font-family:'Syne',sans-serif;font-size:1.7rem;font-weight:800;line-height:1;}
+.stiny{font-size:.6rem;color:var(--mu);}
+.sbadge{display:inline-block;padding:.2rem .8rem;border-radius:20px;font-size:.7rem;font-weight:700;margin-bottom:.45rem;font-family:'Syne',sans-serif;}
+.sinfo h3{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;margin-bottom:.3rem;}
+.sdesc{font-size:.8rem;color:var(--mu2);line-height:1.6;}
 
 /* SECTION HEADING */
-.section-heading{font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:600;color:var(--white);margin:1.3rem 0 .7rem;display:flex;align-items:center;gap:.45rem;}
+.sh{font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;color:var(--wh);
+  margin:1.2rem 0 .65rem;display:flex;align-items:center;gap:.4rem;}
 
-/* DISEASE LIST */
-.disease-list{display:flex;flex-direction:column;gap:.55rem;}
-.disease-row{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:.95rem 1.1rem;animation:fadeIn .4s ease both;}
-.d-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.55rem;}
-.d-name-row{display:flex;align-items:center;gap:.45rem;font-weight:600;font-size:.87rem;}
-.d-pct{font-family:'Clash Display',sans-serif;font-size:1.05rem;font-weight:700;}
-.d-bar-bg{height:5px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden;}
-.d-bar-fill{height:100%;border-radius:3px;transition:width 1.2s ease;}
-.d-factors{font-size:.72rem;color:var(--muted);margin-top:.38rem;}
+/* DISEASE BARS */
+.dlist{display:flex;flex-direction:column;gap:.5rem;}
+.drow{background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:.9rem 1.05rem;animation:fin .4s ease both;}
+.dhdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;}
+.dname{display:flex;align-items:center;gap:.42rem;font-weight:600;font-size:.84rem;}
+.dpct{font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;}
+.dbar-bg{height:5px;background:rgba(255,255,255,0.04);border-radius:3px;overflow:hidden;}
+.dbar-fill{height:100%;border-radius:3px;transition:width 1.2s ease;}
+.dfact{font-size:.7rem;color:var(--mu);margin-top:.35rem;}
 
 /* BEHAVIOUR */
-.behavior-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.3rem;}
-.behavior-item{display:flex;gap:.85rem;padding:.65rem 0;border-bottom:1px solid var(--border);}
-.behavior-item:last-child{border-bottom:none;}
-.beh-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex-shrink:0;}
-.beh-content h4{font-size:.87rem;font-weight:600;margin-bottom:.18rem;}
-.beh-content p{font-size:.78rem;color:var(--muted2);line-height:1.5;}
+.bcard{background:var(--s1);border:1px solid var(--b1);border-radius:13px;padding:1.2rem;}
+.bitem{display:flex;gap:.8rem;padding:.6rem 0;border-bottom:1px solid var(--b1);}
+.bitem:last-child{border-bottom:none;}
+.bico{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+.btitle{font-size:.84rem;font-weight:600;margin-bottom:.15rem;}
+.bdesc{font-size:.76rem;color:var(--mu2);line-height:1.5;}
 
-/* PRECAUTIONS */
-.precaution-card{background:var(--surface);border-radius:12px;padding:1.1rem 1.2rem;margin-bottom:.55rem;display:flex;gap:.75rem;align-items:flex-start;border-left:3px solid var(--amber);border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);}
-.precaution-card.good{border-left-color:var(--green);}
-.precaution-card.critical{border-left-color:var(--red);}
-.pre-icon{font-size:1.2rem;flex-shrink:0;margin-top:1px;}
-.pre-content h4{font-size:.85rem;font-weight:600;margin-bottom:.18rem;}
-.pre-content p{font-size:.78rem;color:var(--muted2);line-height:1.5;}
+/* PRECAUTION */
+.pcard{background:var(--s1);border-radius:11px;padding:1rem 1.1rem;margin-bottom:.5rem;
+  display:flex;gap:.7rem;align-items:flex-start;
+  border-left:3px solid var(--amber);border-top:1px solid var(--b1);
+  border-right:1px solid var(--b1);border-bottom:1px solid var(--b1);}
+.pcard.good{border-left-color:var(--green);}
+.pcard.urgent{border-left-color:var(--red);}
+.pico{font-size:1.1rem;flex-shrink:0;margin-top:1px;}
+.ptitle{font-size:.83rem;font-weight:600;margin-bottom:.15rem;}
+.pdesc{font-size:.76rem;color:var(--mu2);line-height:1.5;}
 
-/* SUFFERING ALERT */
-.suffering-alert{background:rgba(255,82,82,0.06);border:1px solid rgba(255,82,82,0.22);border-radius:12px;padding:1.1rem 1.2rem;margin-bottom:.7rem;}
-.suffering-alert h4{color:var(--red);font-size:.87rem;font-weight:600;margin-bottom:.45rem;display:flex;align-items:center;gap:.35rem;}
-.suffering-alert ul{padding-left:.9rem;}
-.suffering-alert li{font-size:.79rem;color:var(--muted2);margin-bottom:.28rem;line-height:1.5;}
+/* SUFFERING */
+.salert{background:rgba(255,82,82,0.06);border:1px solid rgba(255,82,82,0.2);
+  border-radius:11px;padding:1rem 1.1rem;margin-bottom:.65rem;}
+.salert h4{color:var(--red);font-size:.84rem;font-weight:700;margin-bottom:.42rem;}
+.salert li{font-size:.77rem;color:var(--mu2);margin-bottom:.26rem;line-height:1.5;margin-left:.9rem;}
+
+/* OTHER DISEASE RESULT */
+.other-result{background:rgba(139,92,246,0.07);border:1px solid rgba(139,92,246,0.25);
+  border-radius:13px;padding:1.3rem;margin-bottom:.8rem;}
+.other-result h3{font-family:'Syne',sans-serif;color:#a78bfa;font-size:.95rem;font-weight:700;margin-bottom:.7rem;}
+.other-item{display:flex;gap:.7rem;padding:.55rem 0;border-bottom:1px solid rgba(139,92,246,0.15);}
+.other-item:last-child{border-bottom:none;}
 
 /* CLINIC */
-.clinic-section{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.4rem;margin-top:.9rem;}
-.clinic-section h3{font-family:'Clash Display',sans-serif;font-size:.97rem;font-weight:600;margin-bottom:.7rem;color:var(--red);display:flex;align-items:center;gap:.45rem;}
-.clinic-btn{width:100%;padding:.75rem;background:linear-gradient(135deg,rgba(255,82,82,0.13),rgba(255,82,82,0.07));border:1px solid rgba(255,82,82,0.28);color:var(--red);border-radius:11px;font-family:'Clash Display',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .18s;display:flex;align-items:center;justify-content:center;gap:.55rem;text-decoration:none;}
-.clinic-btn:hover{background:rgba(255,82,82,0.18);}
-.clinic-results{margin-top:.9rem;}
+.clinic-sec{background:var(--s1);border:1px solid var(--b1);border-radius:13px;padding:1.3rem;margin-top:.8rem;}
+.clinic-sec h3{font-family:'Syne',sans-serif;font-size:.93rem;font-weight:700;margin-bottom:.65rem;
+  color:var(--red);display:flex;align-items:center;gap:.4rem;}
+.cbtn{width:100%;padding:.72rem;background:linear-gradient(135deg,rgba(255,82,82,0.12),rgba(255,82,82,0.06));
+  border:1px solid rgba(255,82,82,0.26);color:var(--red);border-radius:10px;
+  font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;
+  transition:all .18s;display:flex;align-items:center;justify-content:center;gap:.5rem;text-decoration:none;}
+.cbtn:hover{background:rgba(255,82,82,0.18);}
+
+/* HISTORY */
+.hist-sec{background:var(--s1);border:1px solid var(--b1);border-radius:13px;padding:1.2rem;margin-top:.8rem;}
+.hrow{display:flex;align-items:center;justify-content:space-between;padding:.55rem 0;border-bottom:1px solid var(--b1);}
+.hrow:last-of-type{border-bottom:none;}
+
+/* PDF / EXPORT BUTTONS */
+.export-row{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-top:.8rem;}
+.ebtn{padding:.78rem;border-radius:10px;font-family:'Syne',sans-serif;font-size:.85rem;
+  font-weight:700;cursor:pointer;transition:all .18s;display:flex;align-items:center;
+  justify-content:center;gap:.5rem;border:none;}
+.ebtn-pdf{background:linear-gradient(135deg,rgba(244,114,182,0.15),rgba(244,114,182,0.07));
+  border:1px solid rgba(244,114,182,0.3)!important;color:var(--pink);}
+.ebtn-pdf:hover{background:rgba(244,114,182,0.22);}
+.ebtn-csv{background:linear-gradient(135deg,rgba(34,211,160,0.13),rgba(34,211,160,0.06));
+  border:1px solid rgba(34,211,160,0.28)!important;color:var(--green);}
+.ebtn-csv:hover{background:rgba(34,211,160,0.2);}
 
 /* RESET */
-.btn-reset{width:100%;margin-top:1.3rem;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:11px;padding:.75rem;font-family:'Instrument Sans',sans-serif;font-size:.87rem;cursor:pointer;transition:border-color .18s,color .18s;}
-.btn-reset:hover{border-color:var(--teal);color:var(--teal);}
-.disclaimer{text-align:center;color:var(--muted);font-size:.69rem;margin-top:1.2rem;line-height:1.7;padding:.75rem;border:1px solid var(--border);border-radius:9px;}
-.info-chip{display:inline-flex;align-items:center;gap:.3rem;background:rgba(59,158,255,0.09);border:1px solid rgba(59,158,255,0.22);color:#7cb9ff;padding:.18rem .55rem;border-radius:5px;font-size:.69rem;margin-top:.35rem;}
+.btnreset{width:100%;margin-top:1.2rem;background:transparent;border:1px solid var(--b1);
+  color:var(--mu);border-radius:10px;padding:.72rem;font-family:'DM Sans',sans-serif;
+  font-size:.84rem;cursor:pointer;transition:all .18s;}
+.btnreset:hover{border-color:var(--teal);color:var(--teal);}
+.disc{text-align:center;color:var(--mu);font-size:.67rem;margin-top:1rem;line-height:1.7;
+  padding:.7rem;border:1px solid var(--b1);border-radius:8px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.2rem;right:1.2rem;background:rgba(0,212,180,0.1);
+  border:1px solid rgba(0,212,180,0.3);color:var(--teal);padding:.55rem 1rem;
+  border-radius:9px;font-size:.78rem;font-weight:600;z-index:999;
+  display:flex;align-items:center;gap:.45rem;animation:fin .3s ease;}
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="header-icon">🧬</div>
+<div class="hdr">
+  <div class="hdr-icon">🧬</div>
   <h1>AI Health Analyzer</h1>
-  <p>Tell us about your body & daily life — get personalized disease risk predictions, behaviour change plan & find nearby clinics if needed.</p>
+  <p>Answer questions about your body & daily life — get disease risk predictions, behaviour change plan, PDF report & find nearby clinics.</p>
 </div>
 
-<div class="progress-wrap">
-  <div class="progress-steps">
-    <div class="step-dot active" id="dot1">1</div><div class="step-line" id="line1"></div>
-    <div class="step-dot" id="dot2">2</div><div class="step-line" id="line2"></div>
-    <div class="step-dot" id="dot3">3</div><div class="step-line" id="line3"></div>
-    <div class="step-dot" id="dot4">4</div><div class="step-line" id="line4"></div>
-    <div class="step-dot" id="dot5">5</div>
+<div class="prog-wrap">
+  <div class="prog-steps">
+    <div class="sdot active" id="d1">1</div><div class="sline" id="l1"></div>
+    <div class="sdot" id="d2">2</div><div class="sline" id="l2"></div>
+    <div class="sdot" id="d3">3</div><div class="sline" id="l3"></div>
+    <div class="sdot" id="d4">4</div><div class="sline" id="l4"></div>
+    <div class="sdot" id="d5">5</div>
   </div>
-  <div class="step-labels">
-    <div class="step-label">Body</div><div class="step-label"></div>
-    <div class="step-label">Daily</div><div class="step-label"></div>
-    <div class="step-label">Habits</div><div class="step-label"></div>
-    <div class="step-label">Diet</div><div class="step-label"></div>
-    <div class="step-label">Health</div>
+  <div class="slabels">
+    <div class="slabel">Body</div><div class="slabel"></div>
+    <div class="slabel">Daily</div><div class="slabel"></div>
+    <div class="slabel">Habits</div><div class="slabel"></div>
+    <div class="slabel">Diet</div><div class="slabel"></div>
+    <div class="slabel">Health</div>
   </div>
 </div>
 
-<div class="container">
+<div class="wrap">
 
-<!-- ══ STEP 1: BODY ══ -->
-<div class="section-card active" id="step1">
-  <div class="section-title"><span>📏</span> Body Measurements</div>
-  <div class="section-sub">Your weight, height and age are used to calculate BMI and set baseline risk thresholds.</div>
-  <div class="form-grid">
-    <div class="form-group"><label>Age (years)</label><input type="number" id="age" placeholder="e.g. 22" min="5" max="100" oninput="calcBMI()"/></div>
-    <div class="form-group"><label>Biological Sex</label>
+<!-- ══ STEP 1 ══ -->
+<div class="card active" id="s1">
+  <div id="savedBadge" style="display:none" class="saved-badge">✅ Your previous data is loaded — just review & continue</div>
+  <div class="ctitle"><span>📏</span> Body Measurements</div>
+  <div class="csub">Your height, weight, and age are used to calculate your BMI and set baseline risk thresholds.</div>
+  <div class="fgrid">
+    <div class="fg"><label>Age (years)</label><input type="number" id="age" placeholder="e.g. 22" min="5" max="100" oninput="calcBMI()"/></div>
+    <div class="fg"><label>Biological Sex</label>
       <select id="sex"><option value="">Select</option><option value="male">Male</option><option value="female">Female</option><option value="other">Prefer not to say</option></select>
     </div>
-    <div class="form-group"><label>Height (cm)</label><input type="number" id="height" placeholder="e.g. 170" min="50" max="250" oninput="calcBMI()"/></div>
-    <div class="form-group"><label>Weight (kg)</label><input type="number" id="weight" placeholder="e.g. 65" min="10" max="300" oninput="calcBMI()"/></div>
+    <div class="fg"><label>Height (cm)</label><input type="number" id="height" placeholder="e.g. 170" min="50" max="250" oninput="calcBMI()"/></div>
+    <div class="fg"><label>Weight (kg)</label><input type="number" id="weight" placeholder="e.g. 65" min="10" max="300" oninput="calcBMI()"/></div>
   </div>
-  <div class="bmi-display" id="bmiDisplay" style="display:none">
-    <div><div class="bmi-val" id="bmiValue">--</div><div class="bmi-label">Your BMI</div></div>
-    <div class="bmi-bar-wrap">
-      <div class="bmi-bar-bg"><div class="bmi-bar-fill" id="bmiBarFill" style="width:0%"></div></div>
-      <div class="bmi-sub"><span>Underweight</span><span>Normal</span><span>Overweight</span><span>Obese</span></div>
+  <div class="bmi-box" id="bmiBox" style="display:none">
+    <div><div class="bmi-num" id="bmiVal">--</div><div class="bmi-lbl">BMI</div></div>
+    <div style="flex:1">
+      <div class="bmi-bar-bg"><div class="bmi-bar-fill" id="bmiBar" style="width:0"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:.6rem;color:var(--mu);margin-top:3px"><span>Under</span><span>Normal</span><span>Over</span><span>Obese</span></div>
     </div>
-    <div id="bmiCategory" style="font-size:.78rem;font-weight:600;min-width:68px;text-align:right;"></div>
+    <div id="bmiCat" style="font-size:.76rem;font-weight:700;min-width:66px;text-align:right"></div>
   </div>
-  <div class="btn-row"><button class="btn-next" onclick="goNext(1)">Continue →</button></div>
+  <div class="btnrow"><button class="btnnext" onclick="goNext(1)">Continue →</button></div>
 </div>
 
-<!-- ══ STEP 2: DAILY ROUTINE ══ -->
-<div class="section-card" id="step2">
-  <div class="section-title"><span>🌅</span> Your Daily Routine</div>
-  <div class="section-sub">Describe a typical day — sleep, movement, work, and how much you sit. This reveals key health patterns.</div>
+<!-- ══ STEP 2 ══ -->
+<div class="card" id="s2">
+  <div class="ctitle"><span>🌅</span> Your Daily Routine</div>
+  <div class="csub">Describe a typical day — sleep, movement, work and how long you sit. This reveals key health patterns.</div>
 
-  <div class="form-group" style="margin-bottom:1rem">
-    <label>Hours of sleep per night</label>
-    <div class="range-wrap">
-      <div class="range-row"><input type="range" id="sleep" min="2" max="12" value="7" oninput="updateRange('sleep','sleepVal','h')"/><div class="range-val" id="sleepVal">7h</div></div>
-      <div class="range-labels"><span>2h</span><span>7h ideal</span><span>12h</span></div>
+  <div class="fg"><label>Hours of sleep per night</label>
+    <div class="rng"><div class="rrow"><input type="range" id="sleep" min="2" max="12" value="7" oninput="rv('sleep','sleepV','h')"/><div class="rval" id="sleepV">7h</div></div>
+    <div class="rlabels"><span>2h</span><span>7h ideal</span><span>12h</span></div></div>
+  </div>
+  <div class="fg"><label>Type of work / occupation</label>
+    <div class="opts" id="workType">
+      <div class="opt" onclick="so(this,'workType')"><span class="oi">💻</span><span class="ol">Desk / Office</span></div>
+      <div class="opt" onclick="so(this,'workType')"><span class="oi">🏭</span><span class="ol">Physical Labour</span></div>
+      <div class="opt" onclick="so(this,'workType')"><span class="oi">🎓</span><span class="ol">Student</span></div>
+      <div class="opt" onclick="so(this,'workType')"><span class="oi">🏠</span><span class="ol">Homemaker</span></div>
     </div>
   </div>
-
-  <div class="form-group" style="margin-bottom:1rem">
-    <label>Type of work / occupation</label>
-    <div class="options-grid" id="workType">
-      <div class="option-btn" onclick="selectOption(this,'workType')"><span class="opt-icon">💻</span><span class="opt-label">Desk / Office</span></div>
-      <div class="option-btn" onclick="selectOption(this,'workType')"><span class="opt-icon">🏭</span><span class="opt-label">Physical / Labour</span></div>
-      <div class="option-btn" onclick="selectOption(this,'workType')"><span class="opt-icon">🎓</span><span class="opt-label">Student</span></div>
-      <div class="option-btn" onclick="selectOption(this,'workType')"><span class="opt-icon">🏠</span><span class="opt-label">Homemaker</span></div>
+  <div class="fg"><label>Total hours sitting per day</label>
+    <div class="rng"><div class="rrow"><input type="range" id="sitting" min="1" max="16" value="8" oninput="rv('sitting','sittingV','h')"/><div class="rval" id="sittingV">8h</div></div>
+    <div class="rlabels"><span>1h</span><span>8h</span><span>16h</span></div></div>
+  </div>
+  <div class="fg"><label>Exercise / physical activity frequency</label>
+    <div class="opts" id="exercise">
+      <div class="opt" onclick="so(this,'exercise')"><span class="oi">🏃</span><span class="ol">Daily</span></div>
+      <div class="opt" onclick="so(this,'exercise')"><span class="oi">🚶</span><span class="ol">3–5x/week</span></div>
+      <div class="opt" onclick="so(this,'exercise')"><span class="oi">🛋️</span><span class="ol">1–2x/week</span></div>
+      <div class="opt" onclick="so(this,'exercise')"><span class="oi">😴</span><span class="ol">Rarely/Never</span></div>
     </div>
   </div>
-
-  <div class="form-group" style="margin-bottom:1rem">
-    <label>Total hours sitting per day (work + leisure)</label>
-    <div class="range-wrap">
-      <div class="range-row"><input type="range" id="sitting" min="1" max="16" value="8" oninput="updateRange('sitting','sittingVal','h')"/><div class="range-val" id="sittingVal">8h</div></div>
-      <div class="range-labels"><span>1h</span><span>8h</span><span>16h</span></div>
+  <div class="fg"><label>Daily water intake</label>
+    <div class="opts" id="water">
+      <div class="opt" onclick="so(this,'water')"><span class="oi">💧</span><span class="ol">Under 1L</span></div>
+      <div class="opt" onclick="so(this,'water')"><span class="oi">🥤</span><span class="ol">1–2 Litres</span></div>
+      <div class="opt" onclick="so(this,'water')"><span class="oi">🫙</span><span class="ol">2–3 Litres</span></div>
+      <div class="opt" onclick="so(this,'water')"><span class="oi">🌊</span><span class="ol">3L+</span></div>
     </div>
   </div>
-
-  <div class="form-group" style="margin-bottom:1rem">
-    <label>How often do you exercise or walk?</label>
-    <div class="options-grid" id="exercise">
-      <div class="option-btn" onclick="selectOption(this,'exercise')"><span class="opt-icon">🏃</span><span class="opt-label">Daily</span></div>
-      <div class="option-btn" onclick="selectOption(this,'exercise')"><span class="opt-icon">🚶</span><span class="opt-label">3–5x/week</span></div>
-      <div class="option-btn" onclick="selectOption(this,'exercise')"><span class="opt-icon">🛋️</span><span class="opt-label">1–2x/week</span></div>
-      <div class="option-btn" onclick="selectOption(this,'exercise')"><span class="opt-icon">😴</span><span class="opt-label">Rarely/Never</span></div>
-    </div>
+  <div class="fg"><label>Daily stress level (1=calm · 10=extreme)</label>
+    <div class="rng"><div class="rrow"><input type="range" id="stress" min="1" max="10" value="5" oninput="rv('stress','stressV','')"/><div class="rval" id="stressV">5</div></div>
+    <div class="rlabels"><span>1 calm</span><span>5 moderate</span><span>10 extreme</span></div></div>
   </div>
-
-  <div class="form-group" style="margin-bottom:1rem">
-    <label>Daily water intake</label>
-    <div class="options-grid" id="water">
-      <div class="option-btn" onclick="selectOption(this,'water')"><span class="opt-icon">💧</span><span class="opt-label">Under 1L</span></div>
-      <div class="option-btn" onclick="selectOption(this,'water')"><span class="opt-icon">🥤</span><span class="opt-label">1–2 Litres</span></div>
-      <div class="option-btn" onclick="selectOption(this,'water')"><span class="opt-icon">🫙</span><span class="opt-label">2–3 Litres</span></div>
-      <div class="option-btn" onclick="selectOption(this,'water')"><span class="opt-icon">🌊</span><span class="opt-label">3L+</span></div>
-    </div>
-  </div>
-
-  <div class="form-group">
-    <label>Daily stress level (1 = calm, 10 = extreme)</label>
-    <div class="range-wrap">
-      <div class="range-row"><input type="range" id="stress" min="1" max="10" value="5" oninput="updateRange('stress','stressVal','')"/><div class="range-val" id="stressVal">5</div></div>
-      <div class="range-labels"><span>1 calm</span><span>5 moderate</span><span>10 extreme</span></div>
-    </div>
-  </div>
-
-  <div class="btn-row"><button class="btn-back" onclick="goBack(2)">← Back</button><button class="btn-next" onclick="goNext(2)">Continue →</button></div>
+  <div class="btnrow"><button class="btnback" onclick="goBack(2)">← Back</button><button class="btnnext" onclick="goNext(2)">Continue →</button></div>
 </div>
 
-<!-- ══ STEP 3: HABITS ══ -->
-<div class="section-card" id="step3">
-  <div class="section-title"><span>🍷</span> Habits & Lifestyle</div>
-  <div class="section-sub">Your habits directly determine which diseases you're likely to develop. Be honest — this is for your benefit.</div>
+<!-- ══ STEP 3 ══ -->
+<div class="card" id="s3">
+  <div class="ctitle"><span>🍷</span> Habits & Lifestyle</div>
+  <div class="csub">Your habits directly determine which diseases you're likely to develop. Be honest — this is for your benefit.</div>
 
-  <div class="form-group" style="margin-bottom:1rem">
-    <label>Smoking</label>
-    <div class="options-grid" id="smoking">
-      <div class="option-btn" onclick="selectOption(this,'smoking')"><span class="opt-icon">✅</span><span class="opt-label">Never Smoked</span></div>
-      <div class="option-btn" onclick="selectOption(this,'smoking')"><span class="opt-icon">🕒</span><span class="opt-label">Ex-Smoker</span></div>
-      <div class="option-btn" onclick="selectOption(this,'smoking')"><span class="opt-icon">🚬</span><span class="opt-label">Occasional</span></div>
-      <div class="option-btn" onclick="selectOption(this,'smoking')"><span class="opt-icon">💨</span><span class="opt-label">Daily Smoker</span></div>
+  <div class="fg"><label>Smoking</label>
+    <div class="opts" id="smoking">
+      <div class="opt" onclick="so(this,'smoking')"><span class="oi">✅</span><span class="ol">Never Smoked</span></div>
+      <div class="opt" onclick="so(this,'smoking')"><span class="oi">🕒</span><span class="ol">Ex-Smoker</span></div>
+      <div class="opt" onclick="so(this,'smoking')"><span class="oi">🚬</span><span class="ol">Occasional</span></div>
+      <div class="opt" onclick="so(this,'smoking')"><span class="oi">💨</span><span class="ol">Daily Smoker</span></div>
     </div>
   </div>
-
-  <div class="form-group" style="margin-bottom:1rem">
-    <label>Alcohol consumption</label>
-    <div class="options-grid" id="alcohol">
-      <div class="option-btn" onclick="selectOption(this,'alcohol')"><span class="opt-icon">🚫</span><span class="opt-label">None</span></div>
-      <div class="option-btn" onclick="selectOption(this,'alcohol')"><span class="opt-icon">🥂</span><span class="opt-label">Occasionally</span></div>
-      <div class="option-btn" onclick="selectOption(this,'alcohol')"><span class="opt-icon">🍺</span><span class="opt-label">Weekly</span></div>
-      <div class="option-btn" onclick="selectOption(this,'alcohol')"><span class="opt-icon">🍻</span><span class="opt-label">Daily</span></div>
+  <div class="fg"><label>Alcohol consumption</label>
+    <div class="opts" id="alcohol">
+      <div class="opt" onclick="so(this,'alcohol')"><span class="oi">🚫</span><span class="ol">None</span></div>
+      <div class="opt" onclick="so(this,'alcohol')"><span class="oi">🥂</span><span class="ol">Occasionally</span></div>
+      <div class="opt" onclick="so(this,'alcohol')"><span class="oi">🍺</span><span class="ol">Weekly</span></div>
+      <div class="opt" onclick="so(this,'alcohol')"><span class="oi">🍻</span><span class="ol">Daily</span></div>
     </div>
   </div>
-
-  <div class="form-group" style="margin-bottom:1rem">
-    <label>Daily screen time (outside work hours)</label>
-    <div class="range-wrap">
-      <div class="range-row"><input type="range" id="screentime" min="0" max="12" value="4" oninput="updateRange('screentime','screentimeVal','h')"/><div class="range-val" id="screentimeVal">4h</div></div>
-      <div class="range-labels"><span>0h</span><span>4h</span><span>12h+</span></div>
+  <div class="fg"><label>Daily screen time (outside work)</label>
+    <div class="rng"><div class="rrow"><input type="range" id="screentime" min="0" max="12" value="4" oninput="rv('screentime','screentimeV','h')"/><div class="rval" id="screentimeV">4h</div></div>
+    <div class="rlabels"><span>0h</span><span>4h</span><span>12h+</span></div></div>
+  </div>
+  <div class="fg"><label>Junk / fast food frequency</label>
+    <div class="opts" id="junkfood">
+      <div class="opt" onclick="so(this,'junkfood')"><span class="oi">🥗</span><span class="ol">Rarely</span></div>
+      <div class="opt" onclick="so(this,'junkfood')"><span class="oi">🍔</span><span class="ol">1–2x/week</span></div>
+      <div class="opt" onclick="so(this,'junkfood')"><span class="oi">🍕</span><span class="ol">3–5x/week</span></div>
+      <div class="opt" onclick="so(this,'junkfood')"><span class="oi">🍟</span><span class="ol">Daily</span></div>
     </div>
   </div>
-
-  <div class="form-group" style="margin-bottom:1rem">
-    <label>How often do you eat junk / fast food?</label>
-    <div class="options-grid" id="junkfood">
-      <div class="option-btn" onclick="selectOption(this,'junkfood')"><span class="opt-icon">🥗</span><span class="opt-label">Rarely</span></div>
-      <div class="option-btn" onclick="selectOption(this,'junkfood')"><span class="opt-icon">🍔</span><span class="opt-label">1–2x/week</span></div>
-      <div class="option-btn" onclick="selectOption(this,'junkfood')"><span class="opt-icon">🍕</span><span class="opt-label">3–5x/week</span></div>
-      <div class="option-btn" onclick="selectOption(this,'junkfood')"><span class="opt-icon">🍟</span><span class="opt-label">Daily</span></div>
+  <div class="fg"><label>Regular medications?</label>
+    <div class="opts" id="meds" style="grid-template-columns:1fr 1fr">
+      <div class="opt" onclick="so(this,'meds')"><span class="oi">💊</span><span class="ol">Yes</span></div>
+      <div class="opt" onclick="so(this,'meds')"><span class="oi">🙅</span><span class="ol">No</span></div>
     </div>
   </div>
-
-  <div class="form-group">
-    <label>Do you take medications regularly?</label>
-    <div class="options-grid" id="meds" style="grid-template-columns:1fr 1fr;">
-      <div class="option-btn" onclick="selectOption(this,'meds')"><span class="opt-icon">💊</span><span class="opt-label">Yes</span></div>
-      <div class="option-btn" onclick="selectOption(this,'meds')"><span class="opt-icon">🙅</span><span class="opt-label">No</span></div>
-    </div>
-  </div>
-
-  <div class="btn-row"><button class="btn-back" onclick="goBack(3)">← Back</button><button class="btn-next" onclick="goNext(3)">Continue →</button></div>
+  <div class="btnrow"><button class="btnback" onclick="goBack(3)">← Back</button><button class="btnnext" onclick="goNext(3)">Continue →</button></div>
 </div>
 
-<!-- ══ STEP 4: DIET ══ -->
-<div class="section-card" id="step4">
-  <div class="section-title"><span>🥦</span> Diet & Nutrition</div>
-  <div class="section-sub">What and when you eat has a huge impact on metabolic health, energy, and disease risk.</div>
+<!-- ══ STEP 4 ══ -->
+<div class="card" id="s4">
+  <div class="ctitle"><span>🥦</span> Diet & Nutrition</div>
+  <div class="csub">What and when you eat has a huge impact on metabolic health, energy, and disease risk.</div>
 
-  <div class="form-group" style="margin-bottom:1rem">
-    <label>Meals per day</label>
-    <div class="options-grid" id="meals">
-      <div class="option-btn" onclick="selectOption(this,'meals')"><span class="opt-icon">1️⃣</span><span class="opt-label">1 meal</span></div>
-      <div class="option-btn" onclick="selectOption(this,'meals')"><span class="opt-icon">2️⃣</span><span class="opt-label">2 meals</span></div>
-      <div class="option-btn" onclick="selectOption(this,'meals')"><span class="opt-icon">3️⃣</span><span class="opt-label">3 meals</span></div>
-      <div class="option-btn" onclick="selectOption(this,'meals')"><span class="opt-icon">🍽️</span><span class="opt-label">4+ meals</span></div>
+  <div class="fg"><label>Meals per day</label>
+    <div class="opts" id="meals">
+      <div class="opt" onclick="so(this,'meals')"><span class="oi">1️⃣</span><span class="ol">1 meal</span></div>
+      <div class="opt" onclick="so(this,'meals')"><span class="oi">2️⃣</span><span class="ol">2 meals</span></div>
+      <div class="opt" onclick="so(this,'meals')"><span class="oi">3️⃣</span><span class="ol">3 meals</span></div>
+      <div class="opt" onclick="so(this,'meals')"><span class="oi">🍽️</span><span class="ol">4+ meals</span></div>
     </div>
   </div>
-
-  <div class="form-group" style="margin-bottom:1rem">
-    <label>Diet type</label>
-    <div class="options-grid" id="dietType">
-      <div class="option-btn" onclick="selectOption(this,'dietType')"><span class="opt-icon">🥬</span><span class="opt-label">Vegetarian</span></div>
-      <div class="option-btn" onclick="selectOption(this,'dietType')"><span class="opt-icon">🥩</span><span class="opt-label">Non-Veg</span></div>
-      <div class="option-btn" onclick="selectOption(this,'dietType')"><span class="opt-icon">🌿</span><span class="opt-label">Vegan</span></div>
-      <div class="option-btn" onclick="selectOption(this,'dietType')"><span class="opt-icon">🍱</span><span class="opt-label">Mixed</span></div>
+  <div class="fg"><label>Diet type</label>
+    <div class="opts" id="dietType">
+      <div class="opt" onclick="so(this,'dietType')"><span class="oi">🥬</span><span class="ol">Vegetarian</span></div>
+      <div class="opt" onclick="so(this,'dietType')"><span class="oi">🥩</span><span class="ol">Non-Veg</span></div>
+      <div class="opt" onclick="so(this,'dietType')"><span class="oi">🌿</span><span class="ol">Vegan</span></div>
+      <div class="opt" onclick="so(this,'dietType')"><span class="oi">🍱</span><span class="ol">Mixed</span></div>
     </div>
   </div>
-
-  <div class="form-group" style="margin-bottom:1rem">
-    <label>How often do you eat fruits & vegetables?</label>
-    <div class="options-grid" id="fruitveg">
-      <div class="option-btn" onclick="selectOption(this,'fruitveg')"><span class="opt-icon">🫐</span><span class="opt-label">Every day</span></div>
-      <div class="option-btn" onclick="selectOption(this,'fruitveg')"><span class="opt-icon">🍎</span><span class="opt-label">3–5x/week</span></div>
-      <div class="option-btn" onclick="selectOption(this,'fruitveg')"><span class="opt-icon">🥕</span><span class="opt-label">Rarely</span></div>
-      <div class="option-btn" onclick="selectOption(this,'fruitveg')"><span class="opt-icon">❌</span><span class="opt-label">Almost Never</span></div>
+  <div class="fg"><label>Fruits & vegetables frequency</label>
+    <div class="opts" id="fruitveg">
+      <div class="opt" onclick="so(this,'fruitveg')"><span class="oi">🫐</span><span class="ol">Every day</span></div>
+      <div class="opt" onclick="so(this,'fruitveg')"><span class="oi">🍎</span><span class="ol">3–5x/week</span></div>
+      <div class="opt" onclick="so(this,'fruitveg')"><span class="oi">🥕</span><span class="ol">Rarely</span></div>
+      <div class="opt" onclick="so(this,'fruitveg')"><span class="oi">❌</span><span class="ol">Almost Never</span></div>
     </div>
   </div>
-
-  <div class="form-group" style="margin-bottom:1rem">
-    <label>Do you skip breakfast?</label>
-    <div class="options-grid" id="breakfast" style="grid-template-columns:repeat(3,1fr)">
-      <div class="option-btn" onclick="selectOption(this,'breakfast')"><span class="opt-icon">☀️</span><span class="opt-label">Never</span></div>
-      <div class="option-btn" onclick="selectOption(this,'breakfast')"><span class="opt-icon">😐</span><span class="opt-label">Sometimes</span></div>
-      <div class="option-btn" onclick="selectOption(this,'breakfast')"><span class="opt-icon">🚫</span><span class="opt-label">Often</span></div>
+  <div class="fg"><label>Skip breakfast?</label>
+    <div class="opts" id="breakfast" style="grid-template-columns:repeat(3,1fr)">
+      <div class="opt" onclick="so(this,'breakfast')"><span class="oi">☀️</span><span class="ol">Never</span></div>
+      <div class="opt" onclick="so(this,'breakfast')"><span class="oi">😐</span><span class="ol">Sometimes</span></div>
+      <div class="opt" onclick="so(this,'breakfast')"><span class="oi">🚫</span><span class="ol">Often</span></div>
     </div>
   </div>
-
-  <div class="form-group">
-    <label>Do you eat late at night (after 10pm)?</label>
-    <div class="options-grid" id="lateeat" style="grid-template-columns:repeat(3,1fr)">
-      <div class="option-btn" onclick="selectOption(this,'lateeat')"><span class="opt-icon">🌙</span><span class="opt-label">Regularly</span></div>
-      <div class="option-btn" onclick="selectOption(this,'lateeat')"><span class="opt-icon">😐</span><span class="opt-label">Sometimes</span></div>
-      <div class="option-btn" onclick="selectOption(this,'lateeat')"><span class="opt-icon">✅</span><span class="opt-label">Rarely</span></div>
+  <div class="fg"><label>Eat after 10pm?</label>
+    <div class="opts" id="lateeat" style="grid-template-columns:repeat(3,1fr)">
+      <div class="opt" onclick="so(this,'lateeat')"><span class="oi">🌙</span><span class="ol">Regularly</span></div>
+      <div class="opt" onclick="so(this,'lateeat')"><span class="oi">😐</span><span class="ol">Sometimes</span></div>
+      <div class="opt" onclick="so(this,'lateeat')"><span class="oi">✅</span><span class="ol">Rarely</span></div>
     </div>
   </div>
-
-  <div class="btn-row"><button class="btn-back" onclick="goBack(4)">← Back</button><button class="btn-next" onclick="goNext(4)">Continue →</button></div>
+  <div class="btnrow"><button class="btnback" onclick="goBack(4)">← Back</button><button class="btnnext" onclick="goNext(4)">Continue →</button></div>
 </div>
 
-<!-- ══ STEP 5: HEALTH HISTORY ══ -->
-<div class="section-card" id="step5">
-  <div class="section-title"><span>🏥</span> Health & Family History</div>
-  <div class="section-sub">Your genetics and current symptoms are the most powerful predictors. Select everything that applies.</div>
+<!-- ══ STEP 5 ══ -->
+<div class="card" id="s5">
+  <div class="ctitle"><span>🏥</span> Health & Family History</div>
+  <div class="csub">Your genetics and current symptoms are the most powerful predictors. Select everything that applies.</div>
 
-  <div class="form-group" style="margin-bottom:1.1rem">
-    <label>Family history of diseases</label>
-    <div class="check-tags" id="familyHistory">
-      <div class="check-tag" onclick="toggleTag(this)">🩸 Diabetes</div>
-      <div class="check-tag" onclick="toggleTag(this)">❤️ Heart Disease</div>
-      <div class="check-tag" onclick="toggleTag(this)">🦠 Cancer</div>
-      <div class="check-tag" onclick="toggleTag(this)">🔴 Hypertension</div>
-      <div class="check-tag" onclick="toggleTag(this)">🧠 Alzheimer's</div>
-      <div class="check-tag" onclick="toggleTag(this)">⚖️ Obesity</div>
-      <div class="check-tag" onclick="toggleTag(this)">🦴 Arthritis</div>
-      <div class="check-tag" onclick="toggleTag(this)">😰 Anxiety/Depression</div>
+  <div class="fg"><label>Family history of diseases</label>
+    <div class="ctags" id="familyHistory">
+      <div class="ctag" onclick="tt(this)">🩸 Diabetes</div>
+      <div class="ctag" onclick="tt(this)">❤️ Heart Disease</div>
+      <div class="ctag" onclick="tt(this)">🦠 Cancer</div>
+      <div class="ctag" onclick="tt(this)">🔴 Hypertension</div>
+      <div class="ctag" onclick="tt(this)">🧠 Alzheimer's</div>
+      <div class="ctag" onclick="tt(this)">⚖️ Obesity</div>
+      <div class="ctag" onclick="tt(this)">🦴 Arthritis</div>
+      <div class="ctag" onclick="tt(this)">😰 Anxiety/Depression</div>
     </div>
   </div>
 
-  <div class="form-group" style="margin-bottom:1.1rem">
-    <label>Are you currently experiencing any of these?</label>
-    <div class="check-tags" id="currentConditions">
-      <div class="check-tag" onclick="toggleTag(this)">😮‍💨 Shortness of Breath</div>
-      <div class="check-tag" onclick="toggleTag(this)">😴 Constant Fatigue</div>
-      <div class="check-tag" onclick="toggleTag(this)">🤕 Frequent Headaches</div>
-      <div class="check-tag" onclick="toggleTag(this)">📈 High Blood Pressure</div>
-      <div class="check-tag" onclick="toggleTag(this)">🍭 Blood Sugar Issues</div>
-      <div class="check-tag" onclick="toggleTag(this)">🦵 Joint Pain</div>
-      <div class="check-tag" onclick="toggleTag(this)">😟 Anxiety/Stress Disorder</div>
-      <div class="check-tag" onclick="toggleTag(this)">🏋️ Significant Weight Gain</div>
+  <div class="fg"><label>Currently experiencing? (select all)</label>
+    <div class="ctags" id="currentConditions">
+      <div class="ctag" onclick="tt(this)">😮‍💨 Shortness of Breath</div>
+      <div class="ctag" onclick="tt(this)">😴 Constant Fatigue</div>
+      <div class="ctag" onclick="tt(this)">🤕 Frequent Headaches</div>
+      <div class="ctag" onclick="tt(this)">📈 High Blood Pressure</div>
+      <div class="ctag" onclick="tt(this)">🍭 Blood Sugar Issues</div>
+      <div class="ctag" onclick="tt(this)">🦵 Joint Pain</div>
+      <div class="ctag" onclick="tt(this)">😟 Anxiety/Stress Disorder</div>
+      <div class="ctag" onclick="tt(this)">🏋️ Significant Weight Gain</div>
     </div>
   </div>
 
-  <div class="form-group" style="margin-bottom:1.1rem">
-    <label>How often do you visit a doctor?</label>
-    <div class="options-grid" id="doctorVisit" style="grid-template-columns:repeat(3,1fr)">
-      <div class="option-btn" onclick="selectOption(this,'doctorVisit')"><span class="opt-icon">📅</span><span class="opt-label">Regular checkups</span></div>
-      <div class="option-btn" onclick="selectOption(this,'doctorVisit')"><span class="opt-icon">🤒</span><span class="opt-label">Only when sick</span></div>
-      <div class="option-btn" onclick="selectOption(this,'doctorVisit')"><span class="opt-icon">❓</span><span class="opt-label">Rarely / Never</span></div>
+  <div class="fg"><label>Doctor visit frequency</label>
+    <div class="opts" id="doctorVisit" style="grid-template-columns:repeat(3,1fr)">
+      <div class="opt" onclick="so(this,'doctorVisit')"><span class="oi">📅</span><span class="ol">Regular checkups</span></div>
+      <div class="opt" onclick="so(this,'doctorVisit')"><span class="oi">🤒</span><span class="ol">Only when sick</span></div>
+      <div class="opt" onclick="so(this,'doctorVisit')"><span class="oi">❓</span><span class="ol">Rarely/Never</span></div>
     </div>
   </div>
 
-  <div class="form-group">
+  <!-- OTHER DISEASE INPUT -->
+  <div class="fg" style="margin-top:1rem">
+    <label>Do you have any other disease or condition?</label>
+    <div class="opts" id="hasOther" style="grid-template-columns:1fr 1fr">
+      <div class="opt" onclick="so(this,'hasOther');toggleOther(true)"><span class="oi">✅</span><span class="ol">Yes, I do</span></div>
+      <div class="opt" onclick="so(this,'hasOther');toggleOther(false)"><span class="oi">🙅</span><span class="ol">No</span></div>
+    </div>
+  </div>
+  <div class="other-disease-box" id="otherBox">
+    <div class="fg">
+      <label>🔬 Name of disease / condition</label>
+      <input type="text" id="otherName" placeholder="e.g. Thyroid, PCOS, Kidney Stone, Asthma..."/>
+    </div>
+    <div class="fg">
+      <label>📝 Describe your symptoms or situation</label>
+      <textarea id="otherDesc" placeholder="e.g. I was diagnosed 2 years ago, I take medication, I feel tired frequently, my doctor said..."></textarea>
+    </div>
+    <div class="fg">
+      <label>💊 Are you currently on treatment?</label>
+      <div class="opts" id="otherTreatment" style="grid-template-columns:repeat(3,1fr)">
+        <div class="opt" onclick="so(this,'otherTreatment')"><span class="oi">✅</span><span class="ol">Yes</span></div>
+        <div class="opt" onclick="so(this,'otherTreatment')"><span class="oi">🚫</span><span class="ol">No</span></div>
+        <div class="opt" onclick="so(this,'otherTreatment')"><span class="oi">🤔</span><span class="ol">Not Sure</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fg" style="margin-top:.8rem">
     <label>Anything else to consider? (optional)</label>
-    <textarea id="extraNotes" placeholder="e.g. I work night shifts, irregular periods, slow recovery from illness, recent weight loss..."></textarea>
+    <textarea id="extraNotes" placeholder="e.g. night shifts, irregular periods, slow recovery from illness..."></textarea>
   </div>
 
-  <div class="btn-row">
-    <button class="btn-back" onclick="goBack(5)">← Back</button>
-    <button class="btn-next" onclick="analyzeAll()" style="background:linear-gradient(135deg,#8b5cf6,#5b21b6)">🤖 Analyze My Health →</button>
+  <div class="btnrow">
+    <button class="btnback" onclick="goBack(5)">← Back</button>
+    <button class="btnnext" onclick="analyze()" style="background:linear-gradient(135deg,#8b5cf6,#5b21b6)">🤖 Analyze My Health →</button>
   </div>
 </div>
 
 <!-- ══ LOADING ══ -->
-<div id="loadingScreen">
-  <div class="dna-loader"></div>
-  <p style="color:var(--muted2);font-size:.87rem;margin-bottom:.4rem">AI Expert System is analyzing your full profile…</p>
-  <div class="loading-steps" id="loadingSteps">
-    <div class="loading-step" id="ls1"><div class="loading-dot"></div>Calculating BMI & body metrics</div>
-    <div class="loading-step" id="ls2"><div class="loading-dot"></div>Loading knowledge base (6 disease rulesets)</div>
-    <div class="loading-step" id="ls3"><div class="loading-dot"></div>Running inference engine — forward chaining</div>
-    <div class="loading-step" id="ls4"><div class="loading-dot"></div>Scoring disease risk across all categories</div>
-    <div class="loading-step" id="ls5"><div class="loading-dot"></div>Generating behaviour change plan</div>
-    <div class="loading-step" id="ls6"><div class="loading-dot"></div>Building personalized recommendations</div>
+<div id="loadScr">
+  <div class="spin"></div>
+  <p style="color:var(--mu2);font-size:.85rem;margin-bottom:.35rem">AI Expert System analyzing your full profile…</p>
+  <div class="lsteps">
+    <div class="lstep" id="ls1"><div class="ldot"></div>Calculating BMI & body metrics</div>
+    <div class="lstep" id="ls2"><div class="ldot"></div>Loading knowledge base (6 disease rulesets)</div>
+    <div class="lstep" id="ls3"><div class="ldot"></div>Running inference engine — forward chaining</div>
+    <div class="lstep" id="ls4"><div class="ldot"></div>Scoring disease risk categories</div>
+    <div class="lstep" id="ls5"><div class="ldot"></div>Generating behaviour change plan</div>
+    <div class="lstep" id="ls6"><div class="ldot"></div>Building personalized recommendations</div>
+    <div class="lstep" id="ls7"><div class="ldot"></div>Preparing PDF report</div>
   </div>
 </div>
 
 <!-- ══ RESULTS ══ -->
-<div id="resultsScreen">
-  <div class="results-header">
-    <h2>🧬 Your AI Health Report</h2>
-    <p id="resultSubtitle"></p>
-  </div>
-
-  <div class="risk-overview">
-    <div class="risk-grid">
-      <div class="score-circle">
-        <svg viewBox="0 0 120 120" width="115" height="115">
-          <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="9"/>
-          <circle id="riskCircle" cx="60" cy="60" r="50" fill="none" stroke="var(--teal)" stroke-width="9"
-            stroke-dasharray="314" stroke-dashoffset="314" stroke-linecap="round"
+<div id="resScr">
+  <div class="rhead"><h2>🧬 Your AI Health Report</h2><p id="rSub"></p></div>
+  <div class="score-card">
+    <div class="sgrid">
+      <div class="scirc">
+        <svg viewBox="0 0 110 110" width="110" height="110">
+          <circle cx="55" cy="55" r="46" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="8"/>
+          <circle id="rCirc" cx="55" cy="55" r="46" fill="none" stroke="var(--teal)" stroke-width="8"
+            stroke-dasharray="289" stroke-dashoffset="289" stroke-linecap="round"
             style="transition:stroke-dashoffset 1.5s ease"/>
         </svg>
-        <div class="score-inner"><div class="score-num" id="overallNum">0%</div><div class="score-tiny">risk score</div></div>
+        <div class="sinner"><div class="snum" id="ovNum">0%</div><div class="stiny">risk score</div></div>
       </div>
-      <div class="risk-info">
-        <div class="risk-badge" id="riskBadge">—</div>
-        <h3 id="riskTitle">Analyzing…</h3>
-        <div class="risk-desc" id="riskDesc"></div>
+      <div class="sinfo">
+        <div class="sbadge" id="rBadge">—</div>
+        <h3 id="rTitle">Analyzing…</h3>
+        <div class="sdesc" id="rDesc"></div>
       </div>
     </div>
   </div>
 
-  <div class="section-heading">📏 BMI Analysis</div>
-  <div class="behavior-card" id="bmiSummaryCard"></div>
+  <div class="sh">📏 BMI Analysis</div>
+  <div class="bcard" id="bmiCard"></div>
 
-  <div class="section-heading">⚠️ Disease Risk Breakdown</div>
-  <div class="disease-list" id="diseaseList"></div>
+  <div class="sh">⚠️ Disease Risk Breakdown</div>
+  <div class="dlist" id="dList"></div>
 
-  <div class="section-heading">🔄 Behaviours You MUST Change</div>
-  <div class="behavior-card" id="behaviourCard"></div>
+  <div id="otherResSection"></div>
 
-  <div class="section-heading">✅ What You Should Start Doing</div>
+  <div class="sh">🔄 Behaviours You Must Change</div>
+  <div class="bcard" id="behCard"></div>
+
+  <div class="sh">✅ What You Should Start Doing</div>
   <div id="doList"></div>
 
-  <div id="alreadySufferingSection"></div>
-  <div id="clinicSection"></div>
+  <div id="sufferSection"></div>
+  <div id="clinicSec"></div>
+  <div id="histSec"></div>
 
-  <button class="btn-reset" onclick="resetAll()">↩ Start New Analysis</button>
-  <div class="disclaimer">⚠️ Educational AI Expert System project only. Not medical advice. Consult a qualified physician for real health decisions.</div>
+  <!-- EXPORT BUTTONS -->
+  <div class="export-row">
+    <button class="ebtn ebtn-pdf" id="pdfBtn" onclick="genPDF()">📄 Download PDF Report</button>
+    <button class="ebtn ebtn-csv" id="csvBtn" onclick="genCSV()">📊 Export to Excel/CSV</button>
+  </div>
+
+  <button class="btnreset" onclick="resetAll()">↩ Start New Analysis</button>
+  <div class="disc">⚠️ Educational AI Expert System — not medical advice. Always consult a qualified physician.</div>
 </div>
 
-</div><!-- /container -->
+</div><!-- /wrap -->
 
 <script>
-// ═══════════════════════════
-// NAVIGATION
-// ═══════════════════════════
-let currentStep=1;
+// ══════════════════════════════════
+// STATE
+// ══════════════════════════════════
+let CS=1, _data=null, _results=null, _overall=0;
+
+function showErr(stepId, msg){
+  let el=document.getElementById(stepId+'err');
+  if(!el){
+    el=document.createElement('div');el.id=stepId+'err';
+    el.style.cssText='background:rgba(255,82,82,0.1);border:1px solid rgba(255,82,82,0.35);color:#ff5252;padding:.55rem .9rem;border-radius:8px;font-size:.8rem;font-weight:600;margin-top:.7rem;display:flex;align-items:center;gap:.4rem;animation:fin .3s ease;';
+    document.getElementById(stepId).querySelector('.btnrow').before(el);
+  }
+  el.innerHTML='⚠️  '+msg;
+  el.style.display='flex';
+  el.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function hideErr(stepId){
+  const el=document.getElementById(stepId+'err');if(el)el.style.display='none';
+}
+
+function validate(s){
+  if(s===1){
+    const age=document.getElementById('age').value.trim();
+    const height=document.getElementById('height').value.trim();
+    const weight=document.getElementById('weight').value.trim();
+    const sex=document.getElementById('sex').value;
+    const missing=[];
+    if(!age||isNaN(age)||Number(age)<5||Number(age)>100) missing.push('Age (5–100)');
+    if(!height||isNaN(height)||Number(height)<50||Number(height)>250) missing.push('Height (50–250 cm)');
+    if(!weight||isNaN(weight)||Number(weight)<10||Number(weight)>300) missing.push('Weight (10–300 kg)');
+    if(!sex) missing.push('Biological Sex');
+    if(missing.length){showErr('s1','Please fill in: '+missing.join(', '));return false;}
+    hideErr('s1');return true;
+  }
+  if(s===2){
+    const missing=[];
+    if(!go('workType')) missing.push('Work / Occupation type');
+    if(!go('exercise')) missing.push('Exercise frequency');
+    if(!go('water')) missing.push('Daily water intake');
+    if(missing.length){showErr('s2','Please select: '+missing.join(', '));return false;}
+    hideErr('s2');return true;
+  }
+  if(s===3){
+    const missing=[];
+    if(!go('smoking')) missing.push('Smoking habit');
+    if(!go('alcohol')) missing.push('Alcohol consumption');
+    if(!go('junkfood')) missing.push('Junk food frequency');
+    if(!go('meds')) missing.push('Medications');
+    if(missing.length){showErr('s3','Please select: '+missing.join(', '));return false;}
+    hideErr('s3');return true;
+  }
+  if(s===4){
+    const missing=[];
+    if(!go('meals')) missing.push('Meals per day');
+    if(!go('dietType')) missing.push('Diet type');
+    if(!go('fruitveg')) missing.push('Fruit & veg frequency');
+    if(!go('breakfast')) missing.push('Breakfast habit');
+    if(!go('lateeat')) missing.push('Late-night eating');
+    if(missing.length){showErr('s4','Please select: '+missing.join(', '));return false;}
+    hideErr('s4');return true;
+  }
+  if(s===5){
+    const missing=[];
+    if(!go('doctorVisit')) missing.push('Doctor visit frequency');
+    if(!go('hasOther')) missing.push('"Do you have any other condition?"');
+    if(go('hasOther')==='Yes, I do'&&!document.getElementById('otherName').value.trim())
+      missing.push('Name of your other condition');
+    if(missing.length){showErr('s5','Please fill in: '+missing.join(', '));return false;}
+    hideErr('s5');return true;
+  }
+  return true;
+}
+
 function goNext(s){
-  document.getElementById('step'+s).classList.remove('active');
-  currentStep=s+1;
-  document.getElementById('step'+currentStep).classList.add('active');
-  updateProgress(currentStep);window.scrollTo({top:0,behavior:'smooth'});
+  if(!validate(s)) return;
+  document.getElementById('s'+s).classList.remove('active');
+  CS=s+1; document.getElementById('s'+CS).classList.add('active');
+  upProg(CS); window.scrollTo({top:0,behavior:'smooth'});
 }
 function goBack(s){
-  document.getElementById('step'+s).classList.remove('active');
-  currentStep=s-1;
-  document.getElementById('step'+currentStep).classList.add('active');
-  updateProgress(currentStep);window.scrollTo({top:0,behavior:'smooth'});
+  document.getElementById('s'+s).classList.remove('active');
+  CS=s-1; document.getElementById('s'+CS).classList.add('active');
+  upProg(CS); window.scrollTo({top:0,behavior:'smooth'});
 }
-function updateProgress(s){
-  for(let i=1;i<=5;i++){
-    const d=document.getElementById('dot'+i);
-    d.className='step-dot';
-    if(i<s)d.classList.add('done');else if(i===s)d.classList.add('active');
-  }
-  for(let i=1;i<=4;i++){
-    const l=document.getElementById('line'+i);
-    l.className='step-line';if(i<s)l.classList.add('done');
-  }
+function upProg(s){
+  for(let i=1;i<=5;i++){const d=document.getElementById('d'+i);d.className='sdot';if(i<s)d.classList.add('done');else if(i===s)d.classList.add('active');}
+  for(let i=1;i<=4;i++){const l=document.getElementById('l'+i);l.className='sline';if(i<s)l.classList.add('done');}
 }
+function so(el,g){document.querySelectorAll('#'+g+' .opt').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');}
+function go(g){const s=document.querySelector('#'+g+' .opt.sel');return s?s.querySelector('.ol').textContent.trim():null;}
+function tt(el){el.classList.toggle('on');}
+function gt(id){return[...document.querySelectorAll('#'+id+' .ctag.on')].map(t=>t.textContent.trim());}
+function rv(id,vid,sfx){document.getElementById(vid).textContent=document.getElementById(id).value+sfx;}
+function toggleOther(show){const b=document.getElementById('otherBox');b.classList.toggle('show',show);}
 
-// ═══════════════════════════
-// UI HELPERS
-// ═══════════════════════════
-function selectOption(el,group){
-  document.querySelectorAll('#'+group+' .option-btn').forEach(b=>b.classList.remove('selected'));
-  el.classList.add('selected');
-}
-function getOption(group){
-  const s=document.querySelector('#'+group+' .option-btn.selected');
-  return s?s.querySelector('.opt-label').textContent.trim():null;
-}
-function toggleTag(el){el.classList.toggle('on');}
-function getTags(id){return[...document.querySelectorAll('#'+id+' .check-tag.on')].map(t=>t.textContent.trim());}
-function updateRange(id,vid,suffix){
-  document.getElementById(vid).textContent=document.getElementById(id).value+suffix;
-}
-
-// ═══════════════════════════
+// ══════════════════════════════════
 // BMI
-// ═══════════════════════════
+// ══════════════════════════════════
 function calcBMI(){
-  const h=parseFloat(document.getElementById('height').value);
-  const w=parseFloat(document.getElementById('weight').value);
+  const h=parseFloat(document.getElementById('height').value),w=parseFloat(document.getElementById('weight').value);
   if(!h||!w)return;
   const bmi=w/((h/100)**2);
-  document.getElementById('bmiDisplay').style.display='flex';
-  document.getElementById('bmiValue').textContent=bmi.toFixed(1);
-  let cat,color,pct;
-  if(bmi<18.5){cat='Underweight';color='var(--blue)';pct=12;}
-  else if(bmi<25){cat='Normal';color='var(--green)';pct=38;}
-  else if(bmi<30){cat='Overweight';color='var(--amber)';pct=62;}
-  else{cat='Obese';color='var(--red)';pct=85;}
-  document.getElementById('bmiCategory').textContent=cat;
-  document.getElementById('bmiCategory').style.color=color;
-  const f=document.getElementById('bmiBarFill');f.style.width=pct+'%';f.style.background=color;
-  document.getElementById('bmiValue').style.color=color;
+  document.getElementById('bmiBox').style.display='flex';
+  document.getElementById('bmiVal').textContent=bmi.toFixed(1);
+  let cat,col,pct;
+  if(bmi<18.5){cat='Underweight';col='var(--blue)';pct=12;}
+  else if(bmi<25){cat='Normal';col='var(--green)';pct=38;}
+  else if(bmi<30){cat='Overweight';col='var(--amber)';pct=62;}
+  else{cat='Obese';col='var(--red)';pct=85;}
+  document.getElementById('bmiCat').textContent=cat;document.getElementById('bmiCat').style.color=col;
+  const bf=document.getElementById('bmiBar');bf.style.width=pct+'%';bf.style.background=col;
+  document.getElementById('bmiVal').style.color=col;
 }
 
-// ═══════════════════════════
-// KNOWLEDGE BASE — IF-THEN Rules (Unit 4)
-// ═══════════════════════════
+// ══════════════════════════════════
+// KNOWLEDGE BASE
+// ══════════════════════════════════
 const KB={
-  diabetes:{name:'Type 2 Diabetes',icon:'🩸',color:'#f5a623',
+  diabetes:{name:'Type 2 Diabetes',icon:'🩸',col:'#f5a623',
     rules(d){let s=0,f=[];
-      if(d.fh.some(x=>x.includes('Diabetes'))){s+=28;f.push('Family history (+28)');}
-      if(d.bmi>30){s+=22;f.push('Obese BMI (+22)');}else if(d.bmi>25){s+=12;f.push('Overweight (+12)');}
-      if(d.exercise==='Rarely/Never'){s+=18;f.push('No exercise (+18)');}
-      if(d.junkfood==='Daily'){s+=15;f.push('Daily junk food (+15)');}else if(d.junkfood==='3–5x/week'){s+=8;}
-      if(d.fruitveg==='Almost Never'){s+=10;f.push('No vegetables (+10)');}
-      if(d.breakfast==='Often'){s+=8;f.push('Skips breakfast (+8)');}
-      if(d.lateeat==='Regularly'){s+=7;f.push('Late eating (+7)');}
-      if(d.age>40){s+=8;f.push('Age >40 (+8)');}
-      if(d.stress>7){s+=5;f.push('High stress (+5)');}
-      if(d.cc.some(x=>x.includes('Blood Sugar'))){s+=20;f.push('Has blood sugar issues (+20)');}
+      if(d.fh.some(x=>x.includes('Diabetes'))){s+=28;f.push('Family history');}
+      if(d.bmi>30){s+=22;f.push('Obese BMI');}else if(d.bmi>25){s+=12;f.push('Overweight');}
+      if(d.exercise==='Rarely/Never'){s+=18;f.push('No exercise');}
+      if(d.junkfood==='Daily'){s+=15;f.push('Daily junk food');}
+      if(d.fruitveg==='Almost Never'){s+=10;f.push('No fruits/veg');}
+      if(d.breakfast==='Often'){s+=8;f.push('Skips breakfast');}
+      if(d.lateeat==='Regularly'){s+=7;f.push('Late eating');}
+      if(d.age>40){s+=8;f.push('Age >40');}
+      if(d.stress>7){s+=5;f.push('High stress');}
+      if(d.cc.some(x=>x.includes('Blood Sugar'))){s+=20;f.push('Has blood sugar issues');}
       return{score:Math.min(s,95),factors:f};}},
-  heart:{name:'Heart Disease',icon:'❤️',color:'#ff5252',
+  heart:{name:'Heart Disease',icon:'❤️',col:'#ff5252',
     rules(d){let s=0,f=[];
-      if(d.fh.some(x=>x.includes('Heart'))){s+=28;f.push('Family history (+28)');}
-      if(d.smoking==='Daily Smoker'){s+=25;f.push('Daily smoker (+25)');}else if(d.smoking==='Occasional'){s+=12;f.push('Occasional smoker (+12)');}
-      if(d.alcohol==='Daily'){s+=18;f.push('Daily alcohol (+18)');}else if(d.alcohol==='Weekly'){s+=8;}
-      if(d.exercise==='Rarely/Never'){s+=18;f.push('No exercise (+18)');}
-      if(d.sitting>8){s+=12;f.push('Prolonged sitting (+12)');}
-      if(d.bmi>30){s+=12;f.push('High BMI (+12)');}
-      if(d.stress>7){s+=10;f.push('High stress (+10)');}
-      if(d.cc.some(x=>x.includes('Blood Pressure'))){s+=15;f.push('Has high BP (+15)');}
-      if(d.fh.some(x=>x.includes('Hypertension'))){s+=10;f.push('BP family history (+10)');}
+      if(d.fh.some(x=>x.includes('Heart'))){s+=28;f.push('Family history');}
+      if(d.smoking==='Daily Smoker'){s+=25;f.push('Daily smoker');}else if(d.smoking==='Occasional'){s+=12;}
+      if(d.alcohol==='Daily'){s+=18;f.push('Daily alcohol');}
+      if(d.exercise==='Rarely/Never'){s+=18;f.push('No exercise');}
+      if(d.sitting>8){s+=12;f.push('Prolonged sitting');}
+      if(d.bmi>30){s+=12;f.push('High BMI');}
+      if(d.stress>7){s+=10;f.push('High stress');}
+      if(d.cc.some(x=>x.includes('Blood Pressure'))){s+=15;f.push('Has high BP');}
       return{score:Math.min(s,95),factors:f};}},
-  hypertension:{name:'Hypertension',icon:'📈',color:'#f97316',
+  hypertension:{name:'Hypertension',icon:'📈',col:'#f97316',
     rules(d){let s=0,f=[];
-      if(d.fh.some(x=>x.includes('Hypertension'))){s+=28;f.push('Family history (+28)');}
-      if(d.cc.some(x=>x.includes('Blood Pressure'))){s+=30;f.push('Currently has high BP (+30)');}
-      if(d.stress>7){s+=18;f.push('High stress (+18)');}
-      if(d.alcohol==='Daily'){s+=15;f.push('Daily alcohol (+15)');}
-      if(d.junkfood==='Daily'){s+=12;f.push('High sodium intake (+12)');}
-      if(d.sleep<6){s+=10;f.push('Poor sleep (+10)');}
-      if(d.exercise==='Rarely/Never'){s+=12;f.push('No exercise (+12)');}
-      if(d.water==='Under 1L'){s+=8;f.push('Low water intake (+8)');}
+      if(d.fh.some(x=>x.includes('Hypertension'))){s+=28;f.push('Family history');}
+      if(d.cc.some(x=>x.includes('Blood Pressure'))){s+=30;f.push('Currently has high BP');}
+      if(d.stress>7){s+=18;f.push('High stress');}
+      if(d.alcohol==='Daily'){s+=15;f.push('Daily alcohol');}
+      if(d.junkfood==='Daily'){s+=12;f.push('High sodium intake');}
+      if(d.sleep<6){s+=10;f.push('Poor sleep');}
+      if(d.exercise==='Rarely/Never'){s+=12;f.push('No exercise');}
+      if(d.water==='Under 1L'){s+=8;f.push('Low water intake');}
       return{score:Math.min(s,95),factors:f};}},
-  obesity:{name:'Obesity / Weight Issues',icon:'⚖️',color:'#84cc16',
+  obesity:{name:'Obesity / Weight',icon:'⚖️',col:'#84cc16',
     rules(d){let s=0,f=[];
-      if(d.bmi>30){s+=40;f.push('Obese BMI (+40)');}else if(d.bmi>25){s+=20;f.push('Overweight (+20)');}
-      if(d.fh.some(x=>x.includes('Obesity'))){s+=25;f.push('Family history (+25)');}
-      if(d.exercise==='Rarely/Never'){s+=18;f.push('No exercise (+18)');}
-      if(d.junkfood==='Daily'){s+=15;f.push('Daily junk food (+15)');}
-      if(d.sitting>10){s+=12;f.push('Sitting 10h+ (+12)');}
-      if(d.lateeat==='Regularly'){s+=10;f.push('Late-night eating (+10)');}
-      if(d.fruitveg==='Almost Never'){s+=8;f.push('No vegetables (+8)');}
+      if(d.bmi>30){s+=40;f.push('Obese BMI');}else if(d.bmi>25){s+=20;f.push('Overweight');}
+      if(d.fh.some(x=>x.includes('Obesity'))){s+=25;f.push('Family history');}
+      if(d.exercise==='Rarely/Never'){s+=18;f.push('No exercise');}
+      if(d.junkfood==='Daily'){s+=15;f.push('Daily junk food');}
+      if(d.sitting>10){s+=12;f.push('Sitting 10h+');}
+      if(d.lateeat==='Regularly'){s+=10;f.push('Late-night eating');}
       return{score:Math.min(s,95),factors:f};}},
-  anxiety:{name:'Anxiety / Mental Health',icon:'🧠',color:'#8b5cf6',
+  anxiety:{name:'Anxiety / Mental',icon:'🧠',col:'#8b5cf6',
     rules(d){let s=0,f=[];
-      if(d.stress>7){s+=30;f.push('High stress (+30)');}else if(d.stress>5){s+=15;}
-      if(d.fh.some(x=>x.includes('Anxiety'))){s+=20;f.push('Family history (+20)');}
-      if(d.cc.some(x=>x.includes('Anxiety'))){s+=25;f.push('Currently experiencing (+25)');}
-      if(d.sleep<6){s+=20;f.push('Poor sleep (+20)');}
-      if(d.screentime>6){s+=12;f.push('High screen time (+12)');}
-      if(d.exercise==='Rarely/Never'){s+=10;f.push('No exercise (+10)');}
-      if(d.cc.some(x=>x.includes('Fatigue'))){s+=10;f.push('Chronic fatigue (+10)');}
+      if(d.stress>7){s+=30;f.push('High stress');}else if(d.stress>5){s+=15;}
+      if(d.fh.some(x=>x.includes('Anxiety'))){s+=20;f.push('Family history');}
+      if(d.cc.some(x=>x.includes('Anxiety'))){s+=25;f.push('Currently experiencing');}
+      if(d.sleep<6){s+=20;f.push('Poor sleep');}
+      if(d.screentime>6){s+=12;f.push('High screen time');}
+      if(d.exercise==='Rarely/Never'){s+=10;f.push('No exercise');}
       return{score:Math.min(s,95),factors:f};}},
-  liver:{name:'Liver / Digestive Issues',icon:'🫀',color:'#06b6d4',
+  liver:{name:'Liver / Digestive',icon:'🫀',col:'#06b6d4',
     rules(d){let s=0,f=[];
-      if(d.alcohol==='Daily'){s+=35;f.push('Daily alcohol (+35)');}else if(d.alcohol==='Weekly'){s+=15;f.push('Regular alcohol (+15)');}
-      if(d.junkfood==='Daily'){s+=20;f.push('Daily processed food (+20)');}
-      if(d.water==='Under 1L'){s+=15;f.push('Severe dehydration (+15)');}
-      if(d.bmi>30){s+=12;f.push('High BMI (+12)');}
-      if(d.meals==='1 meal'){s+=12;f.push('Only 1 meal/day (+12)');}
-      if(d.lateeat==='Regularly'){s+=10;f.push('Late-night eating (+10)');}
-      if(d.fruitveg==='Almost Never'){s+=8;f.push('Low fibre diet (+8)');}
+      if(d.alcohol==='Daily'){s+=35;f.push('Daily alcohol');}else if(d.alcohol==='Weekly'){s+=15;}
+      if(d.junkfood==='Daily'){s+=20;f.push('Daily junk food');}
+      if(d.water==='Under 1L'){s+=15;f.push('Severe dehydration');}
+      if(d.bmi>30){s+=12;f.push('High BMI');}
+      if(d.lateeat==='Regularly'){s+=10;f.push('Late-night eating');}
+      if(d.fruitveg==='Almost Never'){s+=8;f.push('Low fibre diet');}
       return{score:Math.min(s,95),factors:f};}}
 };
 
-// ═══════════════════════════
-// INFERENCE ENGINE (Unit 1)
-// ═══════════════════════════
-function inferenceEngine(data){
-  const results={};
-  for(const[k,kb]of Object.entries(KB)){
-    const r=kb.rules(data);
-    results[k]={...r,name:kb.name,icon:kb.icon,color:kb.color};
-  }
-  return results;
+function inferAll(d){
+  const r={};
+  for(const[k,kb]of Object.entries(KB)){const res=kb.rules(d);r[k]={...res,name:kb.name,icon:kb.icon,col:kb.col};}
+  return r;
 }
-function getRisk(s){
-  if(s<25)return{label:'Low Risk',color:'var(--green)'};
-  if(s<50)return{label:'Moderate Risk',color:'var(--amber)'};
-  if(s<75)return{label:'High Risk',color:'var(--red)'};
-  return{label:'Critical Risk',color:'#ff0000'};
+function rlevel(s){
+  if(s<25)return{l:'Low Risk',c:'var(--green)'};
+  if(s<50)return{l:'Moderate Risk',c:'var(--amber)'};
+  if(s<75)return{l:'High Risk',c:'var(--red)'};
+  return{l:'Critical Risk',c:'#ff0000'};
 }
-function hex2rgb(h){h=h.replace('#','');return`${parseInt(h.slice(0,2),16)},${parseInt(h.slice(2,4),16)},${parseInt(h.slice(4,6),16)}`;}
-function scoreHex(s){if(s<25)return'22d3a0';if(s<50)return'f5a623';if(s<75)return'ff5252';return'ff0000';}
+function h2r(h){h=h.replace('#','');return`${parseInt(h.slice(0,2),16)},${parseInt(h.slice(2,4),16)},${parseInt(h.slice(4,6),16)}`;}
+function sc2h(s){if(s<25)return'22d3a0';if(s<50)return'f5a623';if(s<75)return'ff5252';return'ff0000';}
 
-// ═══════════════════════════
+// ══════════════════════════════════
 // ANALYZE
-// ═══════════════════════════
-function analyzeAll(){
+// ══════════════════════════════════
+function analyze(){
+  if(!validate(5)) return;
   const h=parseFloat(document.getElementById('height').value)||170;
   const w=parseFloat(document.getElementById('weight').value)||65;
-  const data={
+  _data={
     age:parseInt(document.getElementById('age').value)||25,
     sex:document.getElementById('sex').value||'other',
-    height:h,weight:w,
-    bmi:parseFloat((w/((h/100)**2)).toFixed(1)),
+    height:h,weight:w,bmi:parseFloat((w/((h/100)**2)).toFixed(1)),
     sleep:parseInt(document.getElementById('sleep').value)||7,
     sitting:parseInt(document.getElementById('sitting').value)||8,
     stress:parseInt(document.getElementById('stress').value)||5,
     screentime:parseInt(document.getElementById('screentime').value)||4,
-    workType:getOption('workType')||'Student',
-    exercise:getOption('exercise')||'1–2x/week',
-    water:getOption('water')||'1–2 Litres',
-    smoking:getOption('smoking')||'Never Smoked',
-    alcohol:getOption('alcohol')||'None',
-    junkfood:getOption('junkfood')||'1–2x/week',
-    meds:getOption('meds')||'No',
-    meals:getOption('meals')||'3 meals',
-    dietType:getOption('dietType')||'Mixed',
-    fruitveg:getOption('fruitveg')||'3–5x/week',
-    breakfast:getOption('breakfast')||'Never',
-    lateeat:getOption('lateeat')||'Sometimes',
-    doctorVisit:getOption('doctorVisit')||'Only when sick',
-    fh:getTags('familyHistory'),
-    cc:getTags('currentConditions'),
+    workType:go('workType')||'Student',exercise:go('exercise')||'1–2x/week',
+    water:go('water')||'1–2 Litres',smoking:go('smoking')||'Never Smoked',
+    alcohol:go('alcohol')||'None',junkfood:go('junkfood')||'1–2x/week',
+    meds:go('meds')||'No',meals:go('meals')||'3 meals',
+    dietType:go('dietType')||'Mixed',fruitveg:go('fruitveg')||'3–5x/week',
+    breakfast:go('breakfast')||'Never',lateeat:go('lateeat')||'Sometimes',
+    doctorVisit:go('doctorVisit')||'Only when sick',
+    fh:gt('familyHistory'),cc:gt('currentConditions'),
+    hasOther:go('hasOther')||'No',
+    otherName:document.getElementById('otherName').value.trim(),
+    otherDesc:document.getElementById('otherDesc').value.trim(),
+    otherTreatment:go('otherTreatment')||'Not Sure',
     extra:document.getElementById('extraNotes').value
   };
 
-  for(let i=1;i<=5;i++)document.getElementById('step'+i).classList.remove('active');
-  document.getElementById('loadingScreen').style.display='block';
+  for(let i=1;i<=5;i++)document.getElementById('s'+i).classList.remove('active');
+  document.getElementById('loadScr').style.display='block';
   window.scrollTo({top:0,behavior:'smooth'});
 
-  ['ls1','ls2','ls3','ls4','ls5','ls6'].forEach((id,i)=>{
-    setTimeout(()=>{
-      const el=document.getElementById(id);
-      el.classList.add('show');setTimeout(()=>el.classList.add('done'),280);
-    },i*360);
+  ['ls1','ls2','ls3','ls4','ls5','ls6','ls7'].forEach((id,i)=>{
+    setTimeout(()=>{const el=document.getElementById(id);el.classList.add('show');setTimeout(()=>el.classList.add('done'),280);},i*360);
   });
-
-  setTimeout(()=>{
-    document.getElementById('loadingScreen').style.display='none';
-    buildResults(data);
-  },2900);
+  setTimeout(()=>{document.getElementById('loadScr').style.display='none';buildResults();},3100);
 }
 
-// ═══════════════════════════
+// ══════════════════════════════════
 // BUILD RESULTS
-// ═══════════════════════════
-function buildResults(data){
-  document.getElementById('resultsScreen').style.display='block';
+// ══════════════════════════════════
+function buildResults(){
+  saveData(_data);
+  _results=inferAll(_data);
+  const scores=Object.values(_results).map(r=>r.score);
+  _overall=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
+  const rk=rlevel(_overall);
+  const isEx=_overall>=65;
+
+  document.getElementById('resScr').style.display='block';
   window.scrollTo({top:0,behavior:'smooth'});
-
-  const results=inferenceEngine(data);
-  const scores=Object.values(results).map(r=>r.score);
-  const overall=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
-  const risk=getRisk(overall);
-  const isExtreme=overall>=65;
-
-  document.getElementById('resultSubtitle').textContent=
-    `${data.age}yr ${data.sex} · ${data.height}cm · ${data.weight}kg · BMI ${data.bmi}`;
+  document.getElementById('rSub').textContent=`${_data.age}yr ${_data.sex} · ${_data.height}cm · ${_data.weight}kg · BMI ${_data.bmi}`;
 
   setTimeout(()=>{
-    const c=document.getElementById('riskCircle');
-    c.style.strokeDashoffset=314-(314*overall/100);
-    c.style.stroke=risk.color;
-    const n=document.getElementById('overallNum');n.textContent=overall+'%';n.style.color=risk.color;
+    const c=document.getElementById('rCirc');
+    c.style.strokeDashoffset=289-(289*_overall/100);c.style.stroke=rk.c;
+    const n=document.getElementById('ovNum');n.textContent=_overall+'%';n.style.color=rk.c;
   },100);
 
-  const b=document.getElementById('riskBadge');
-  b.textContent=risk.label;b.style.color=risk.color;
-  b.style.background=`rgba(${hex2rgb(scoreHex(overall))},0.13)`;
-  b.style.border=`1px solid rgba(${hex2rgb(scoreHex(overall))},0.35)`;
+  const b=document.getElementById('rBadge');
+  b.textContent=rk.l;b.style.color=rk.c;
+  b.style.background=`rgba(${h2r(sc2h(_overall))},0.12)`;
+  b.style.border=`1px solid rgba(${h2r(sc2h(_overall))},0.3)`;
+  document.getElementById('rTitle').textContent=isEx?'⚠️ Immediate Attention Required':_overall<25?'✅ You\'re in Good Shape!':'📋 Areas for Improvement Found';
+  document.getElementById('rDesc').textContent=overallDesc(_data,_overall);
 
-  document.getElementById('riskTitle').textContent=
-    isExtreme?'⚠️ Immediate Attention Required':overall<25?'✅ You\'re in Good Shape!':'📋 Improvement Areas Found';
-  document.getElementById('riskDesc').textContent=buildOverallDesc(data,overall);
-
-  buildBMI(data);
-  buildDiseases(results);
-  buildBehaviour(data);
-  buildToDo(data,results);
-  buildSuffering(data);
-  if(isExtreme)buildClinic();
+  buildBMICard();
+  buildDiseases();
+  buildOtherResult();
+  buildBehaviour();
+  buildToDo();
+  buildSuffering();
+  if(isEx)buildClinic();
+  saveHistory(_overall);
+  buildHistory();
 }
 
-function buildOverallDesc(data,s){
-  if(s<25)return'Your lifestyle and health profile show low disease risk overall. Keep maintaining your good habits — consistency is the key.';
-  if(s<50)return`Your profile has several areas for improvement, especially around ${data.exercise==='Rarely/Never'?'exercise, ':''}${data.junkfood!=='Rarely'?'diet, ':''}and daily habits. Small changes now prevent big problems later.`;
+function overallDesc(d,s){
+  if(s<25)return'Your lifestyle and health profile show low disease risk overall. Keep up your good habits consistently.';
+  if(s<50)return`Your profile has several improvement areas — especially around ${d.exercise==='Rarely/Never'?'exercise, ':''}diet and daily habits. Small changes now prevent big problems later.`;
   if(s<75)return'Multiple high-risk factors detected. Your current habits are significantly increasing disease risk. Immediate lifestyle changes and a doctor visit are strongly recommended.';
-  return'CRITICAL: Your risk profile shows alarming levels across multiple disease categories. Please consult a physician as soon as possible and make urgent changes to your lifestyle.';
+  return'CRITICAL: Your risk profile shows alarming levels across multiple disease categories. Please consult a physician as soon as possible.';
 }
 
-function buildBMI(data){
-  const b=data.bmi;
-  let cat,color,msg;
-  if(b<18.5){cat='Underweight';color='var(--blue)';msg=`BMI ${b} is below the healthy range. You risk nutritional deficiencies, weak immunity, and bone loss. Eat calorie-dense nutritious foods — consult a dietician.`;}
-  else if(b<25){cat='Normal Weight';color='var(--green)';msg=`BMI ${b} is in the healthy range (18.5–24.9). Maintain this through regular exercise and balanced diet.`;}
-  else if(b<30){cat='Overweight';color='var(--amber)';msg=`BMI ${b} means you're overweight. This significantly raises diabetes and heart disease risk. Aim to lose 5–10% body weight over 3–6 months.`;}
-  else{cat='Obese';color='var(--red)';msg=`BMI ${b} is in the obese range. This is a critical risk factor for 5 of the 6 conditions analyzed. Start a supervised weight management program immediately.`;}
-  document.getElementById('bmiSummaryCard').innerHTML=`
-    <div class="behavior-item">
-      <div class="beh-icon" style="background:rgba(${hex2rgb(scoreHex(b>30?80:b>25?45:20))},0.12)">📏</div>
-      <div class="beh-content">
-        <h4 style="color:${color}">BMI ${b} — ${cat}</h4>
-        <p>${msg}</p>
-        <div class="info-chip">Healthy BMI range: 18.5 – 24.9</div>
-      </div>
+function buildBMICard(){
+  const b=_data.bmi;
+  let cat,col,msg;
+  if(b<18.5){cat='Underweight';col='var(--blue)';msg=`BMI ${b} is below healthy range. You risk nutritional deficiencies and weak immunity. Eat calorie-dense nutritious foods.`;}
+  else if(b<25){cat='Normal Weight';col='var(--green)';msg=`BMI ${b} is in the healthy range (18.5–24.9). Maintain this through regular exercise and a balanced diet.`;}
+  else if(b<30){cat='Overweight';col='var(--amber)';msg=`BMI ${b} puts you in the overweight category. This significantly raises diabetes and heart disease risk. Aim to lose 5–10% body weight over 3–6 months.`;}
+  else{cat='Obese';col='var(--red)';msg=`BMI ${b} is in the obese range — a critical risk factor for 5 of the 6 conditions analyzed. Start a supervised weight management program immediately.`;}
+  document.getElementById('bmiCard').innerHTML=`<div class="bitem"><div class="bico" style="background:rgba(${h2r(sc2h(b>30?80:b>25?45:20))},0.1)">📏</div><div><div class="btitle" style="color:${col}">BMI ${b} — ${cat}</div><div class="bdesc">${msg}</div><div style="display:inline-flex;align-items:center;gap:.3rem;background:rgba(59,158,255,0.09);border:1px solid rgba(59,158,255,0.2);color:#7cb9ff;padding:.15rem .5rem;border-radius:5px;font-size:.67rem;margin-top:.3rem">Healthy BMI: 18.5 – 24.9</div></div></div>`;
+}
+
+function buildDiseases(){
+  const el=document.getElementById('dList');el.innerHTML='';
+  Object.values(_results).sort((a,b)=>b.score-a.score).forEach((r,i)=>{
+    const d=document.createElement('div');d.className='drow';d.style.animationDelay=i*0.07+'s';
+    d.innerHTML=`<div class="dhdr"><div class="dname"><span>${r.icon}</span>${r.name}</div><div class="dpct" style="color:${r.col}">${r.score}%</div></div>
+    <div class="dbar-bg"><div class="dbar-fill" style="background:${r.col};width:0" id="db${i}"></div></div>
+    <div class="dfact">${r.factors.length?r.factors.slice(0,3).join(' · '):'No major risk factors'}</div>`;
+    el.appendChild(d);setTimeout(()=>{document.getElementById('db'+i).style.width=r.score+'%';},200+i*80);
+  });
+}
+
+// ── OTHER DISEASE AI RECOMMENDATIONS ──
+function buildOtherResult(){
+  const sec=document.getElementById('otherResSection');
+  if(_data.hasOther!=='Yes, I do'||!_data.otherName){sec.innerHTML='';return;}
+  const name=_data.otherName,desc=_data.otherDesc,treat=_data.otherTreatment;
+  const recs=getOtherRecs(name,desc,treat,_data);
+  sec.innerHTML=`
+    <div class="sh">🔬 AI Recommendations for ${name}</div>
+    <div class="other-result">
+      <h3>Based on your condition: ${name}</h3>
+      ${recs.map(r=>`<div class="other-item">
+        <div class="bico" style="background:rgba(139,92,246,0.12);flex-shrink:0;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center">${r.icon}</div>
+        <div><div class="btitle" style="color:#a78bfa">${r.title}</div><div class="bdesc">${r.desc}</div></div>
+      </div>`).join('')}
     </div>`;
 }
 
-function buildDiseases(results){
-  const el=document.getElementById('diseaseList');el.innerHTML='';
-  Object.values(results).sort((a,b)=>b.score-a.score).forEach((r,i)=>{
-    const d=document.createElement('div');d.className='disease-row';d.style.animationDelay=i*0.07+'s';
-    d.innerHTML=`
-      <div class="d-header">
-        <div class="d-name-row"><span>${r.icon}</span> ${r.name}</div>
-        <div class="d-pct" style="color:${r.color}">${r.score}%</div>
-      </div>
-      <div class="d-bar-bg"><div class="d-bar-fill" style="background:${r.color};width:0" id="db${i}"></div></div>
-      <div class="d-factors">${r.factors.length?r.factors.slice(0,3).join(' · '):'No major risk factors detected'}</div>`;
-    el.appendChild(d);setTimeout(()=>{document.getElementById('db'+i).style.width=r.score+'%';},220+i*80);
-  });
-}
+function getOtherRecs(name,desc,treat,d){
+  const n=name.toLowerCase();
+  const recs=[];
 
-function buildBehaviour(data){
-  const changes=[];
-  if(data.smoking==='Daily Smoker'||data.smoking==='Occasional')
-    changes.push({e:'🚭',c:'#ff5252',t:'Stop Smoking Now',d:'Smoking damages your lungs, heart and DNA. Each cigarette shortens life by 11 minutes. Set a quit date — nicotine patches or gum help. Your body begins healing within 24 hours of stopping.'});
-  if(data.exercise==='Rarely/Never'||data.exercise==='1–2x/week')
-    changes.push({e:'🏃',c:'#22d3a0',t:'Exercise Every Day',d:'You\'re not moving enough. Start with 20-minute walks daily — this alone reduces heart disease risk by 30%. Gradually increase to 150 min/week of moderate activity.'});
-  if(data.sitting>8)
-    changes.push({e:'🧍',c:'#f5a623',t:'Break Your Sitting Habit',d:`Sitting ${data.sitting} hours/day is as dangerous as smoking. Set a timer every 45 min to stand and walk for 5 min. Swap your chair for a standing desk if possible.`});
-  if(data.junkfood==='Daily'||data.junkfood==='3–5x/week')
-    changes.push({e:'🥗',c:'#84cc16',t:'Stop Eating Junk Food Daily',d:'Processed food is loaded with trans fat, refined sugar and sodium. Replace 1 junk meal per day with home-cooked food this week, then build from there.'});
-  if(data.sleep<6)
-    changes.push({e:'😴',c:'#8b5cf6',t:'Prioritize Sleep — Tonight',d:`${data.sleep} hours of sleep is dangerously low. Adults need 7–9 hours. Set a strict sleep/wake schedule — even weekends. Avoid screens 1 hour before bed.`});
-  if(data.stress>7)
-    changes.push({e:'🧘',c:'#3b9eff',t:'Control Your Stress Urgently',d:'Chronic high stress damages your heart, brain, and immune system. Start 10 min of deep breathing daily, reduce caffeine, and talk to someone you trust.'});
-  if(data.water==='Under 1L')
-    changes.push({e:'💧',c:'#06b6d4',t:'Drink More Water — Daily',d:'Under 1L/day causes kidney strain, headaches, and brain fog. Place a water bottle on your desk now. Set 8 phone alarms — one per glass per day.'});
-  if(data.alcohol==='Daily'||data.alcohol==='Weekly')
-    changes.push({e:'🍷',c:'#f97316',t:'Reduce Alcohol Intake',d:'Daily/weekly alcohol is damaging your liver, heart, and sleep quality. Limit to max 1–2 drinks occasionally. If you can\'t stop, speak to a doctor — withdrawal can be dangerous.'});
-  if(data.lateeat==='Regularly')
-    changes.push({e:'🌙',c:'#a78bfa',t:'Stop Late-Night Eating',d:'Eating after 10pm raises blood sugar, causes weight gain, and disrupts sleep hormones. Finish your last meal by 8pm. Drink chamomile tea if you\'re hungry at night.'});
-  if(data.screentime>5)
-    changes.push({e:'📱',c:'#f5a623',t:'Reduce Screen Time',d:`${data.screentime}h of screen time is harming your eyes, neck posture, and sleep. Use blue-light glasses, follow the 20-20-20 rule: every 20 min, look 20 feet away for 20 seconds.`});
+  // Generic recs everyone gets
+  recs.push({icon:'🩺',title:'See a Specialist',desc:`For ${name}, consult a specialist (not just a general physician) who focuses on this condition. Bring all your current reports and medication list.`});
 
-  const card=document.getElementById('behaviourCard');
-  if(!changes.length){
-    card.innerHTML='<div class="behavior-item"><div class="beh-icon" style="background:rgba(34,211,160,0.12)">✅</div><div class="beh-content"><h4 style="color:var(--green)">No major red flags!</h4><p>Your habits are mostly healthy. Keep it consistent.</p></div></div>';return;
+  if(treat==='No'||treat==='Not Sure')
+    recs.push({icon:'💊',title:'Start Proper Treatment',desc:`You mentioned you're not currently on treatment for ${name}. Untreated conditions often worsen silently. Get a proper diagnosis and treatment plan from a doctor as soon as possible.`});
+  else
+    recs.push({icon:'📋',title:'Continue & Monitor Treatment',desc:`Keep taking your prescribed medication consistently — never skip doses. Get regular follow-up tests to track how your ${name} is responding to treatment.`});
+
+  // Condition-specific rules
+  if(n.includes('thyroid')){
+    recs.push({icon:'🧂',title:'Watch Iodine & Goitrogen Intake',desc:'Avoid excessive raw cabbage, broccoli, and soy if hypothyroid. Ensure adequate iodine through iodized salt. Get TSH levels checked every 6 months.'});
+    recs.push({icon:'😴',title:'Prioritize Sleep & Stress Control',desc:'Thyroid conditions worsen significantly with poor sleep and high stress. Your stress score is '+d.stress+'/10 — work on reducing it through meditation or yoga.'});
+  } else if(n.includes('pcos')||n.includes('pcod')){
+    recs.push({icon:'🏃',title:'Exercise is Essential for PCOS',desc:'Regular exercise (30 min/day) reduces insulin resistance which is the root cause of PCOS. Even brisk walking helps regulate hormones significantly.'});
+    recs.push({icon:'🥦',title:'Low-GI Diet Recommended',desc:'Avoid white rice, sugar, and refined carbs. Switch to whole grains, vegetables, and lean proteins. This reduces androgen levels and regulates periods.'});
+  } else if(n.includes('asthma')||n.includes('lung')||n.includes('breathing')){
+    recs.push({icon:'🚭',title:'Avoid ALL Smoke & Pollution',desc:'Smoking and secondhand smoke are the worst triggers for your condition. Avoid dusty, polluted, or smoky environments. Use an air purifier if possible.'});
+    recs.push({icon:'💨',title:'Keep Inhaler Accessible',desc:'Always carry your rescue inhaler. Know your triggers (dust, cold air, exercise). Do breathing exercises like diaphragmatic breathing daily to strengthen lung capacity.'});
+  } else if(n.includes('kidney')||n.includes('renal')){
+    recs.push({icon:'💧',title:'Hydration is Critical',desc:'Drink 2.5–3L of water daily to prevent kidney stones and support kidney function. Your current water intake is: '+d.water+'. Increase this immediately.'});
+    recs.push({icon:'🧂',title:'Reduce Salt & Protein',desc:'Excess sodium and protein overwork damaged kidneys. Limit salt to under 5g/day and consult your doctor about protein limits specific to your kidney function.'});
+  } else if(n.includes('diabetes')||n.includes('sugar')){
+    recs.push({icon:'📊',title:'Monitor Blood Sugar Daily',desc:'Test fasting glucose every morning and post-meal glucose 2 hours after eating. Keep a log — share it with your doctor at every visit.'});
+    recs.push({icon:'🚶',title:'Walk After Every Meal',desc:'A 15-minute walk after each main meal reduces post-meal blood sugar by up to 20%. This is one of the most effective and free interventions for diabetes management.'});
+  } else if(n.includes('arthritis')||n.includes('joint')){
+    recs.push({icon:'🏊',title:'Low-Impact Exercise Only',desc:'Switch to swimming, cycling, or water aerobics — these strengthen muscles without stressing joints. Avoid high-impact activities like running or jumping.'});
+    recs.push({icon:'🌡️',title:'Hot & Cold Therapy',desc:'Apply warm compress for chronic stiffness (mornings). Use cold pack for acute flare-ups and swelling. Never apply ice directly — use a cloth barrier.'});
+  } else if(n.includes('bp')||n.includes('blood pressure')||n.includes('hyper')){
+    recs.push({icon:'📉',title:'Monitor BP at Home Daily',desc:'Buy a home BP monitor and check every morning and evening. Keep a log. Target: below 130/80 mmHg. Report any readings above 160/100 to your doctor immediately.'});
+    recs.push({icon:'🧘',title:'Stress & Salt are Your Enemies',desc:'Your stress level is '+d.stress+'/10 — this directly raises blood pressure. Cut sodium to under 5g/day and practice 10 min of deep breathing daily.'});
+  } else {
+    // Generic for any unknown condition
+    recs.push({icon:'📅',title:'Regular Monitoring',desc:`For ${name}, regular checkups and lab tests are essential to track disease progression. Don't wait for symptoms to worsen — schedule a follow-up every 3–6 months.`});
+    recs.push({icon:'🥗',title:'Anti-Inflammatory Diet Helps Most Conditions',desc:'Reduce processed food, sugar, and trans fats. Add omega-3 rich foods (walnuts, flaxseeds, fish), turmeric, and green vegetables — these help reduce inflammation linked to most chronic conditions.'});
+    if(d.exercise==='Rarely/Never')
+      recs.push({icon:'🏃',title:'Start Moving — It Helps Everything',desc:'Regular light exercise reduces inflammation, boosts immunity, and improves quality of life for almost every chronic condition. Start with 20-min daily walks.'});
   }
-  card.innerHTML=changes.map(c=>`
-    <div class="behavior-item">
-      <div class="beh-icon" style="background:rgba(${hex2rgb(c.c.replace('#',''))},0.11)">${c.e}</div>
-      <div class="beh-content"><h4>${c.t}</h4><p>${c.d}</p></div>
-    </div>`).join('');
+
+  return recs.slice(0,5);
 }
 
-function buildToDo(data,results){
-  const top=Object.values(results).sort((a,b)=>b.score-a.score);
+function buildBehaviour(){
+  const changes=[];
+  if(_data.smoking==='Daily Smoker'||_data.smoking==='Occasional')
+    changes.push({e:'🚭',c:'#ff5252',t:'Stop Smoking Now',d:'Every cigarette shortens life by 11 minutes and worsens nearly every disease. Set a quit date today — nicotine patches or gum can help.'});
+  if(_data.exercise==='Rarely/Never'||_data.exercise==='1–2x/week')
+    changes.push({e:'🏃',c:'#22d3a0',t:'Exercise Every Day',d:'Start with 20-min walks daily — this alone reduces heart disease risk by 30%. Build up to 150 min/week of moderate activity.'});
+  if(_data.sitting>8)
+    changes.push({e:'🧍',c:'#f5a623',t:'Break Your Sitting Habit',d:`Sitting ${_data.sitting}h/day is as dangerous as smoking. Set a 45-min timer — stand and walk for 5 minutes every session.`});
+  if(_data.junkfood==='Daily'||_data.junkfood==='3–5x/week')
+    changes.push({e:'🥗',c:'#84cc16',t:'Cut Junk Food',d:'Replace 1 junk meal per day with home-cooked food. Reduce sodium, refined sugar, and trans fat intake.'});
+  if(_data.sleep<6)
+    changes.push({e:'😴',c:'#8b5cf6',t:'Fix Your Sleep Schedule',d:`${_data.sleep}h of sleep is too low. Set a fixed sleep/wake time — even on weekends. Avoid screens 1h before bed.`});
+  if(_data.stress>7)
+    changes.push({e:'🧘',c:'#3b9eff',t:'Manage Stress Urgently',d:'Chronic high stress damages your heart, brain, and immune system. Start 10 min of deep breathing daily.'});
+  if(_data.water==='Under 1L')
+    changes.push({e:'💧',c:'#06b6d4',t:'Drink More Water',d:'Under 1L/day causes kidney strain and headaches. Set alarms — drink 8 glasses daily, starting now.'});
+  if(_data.alcohol==='Daily'||_data.alcohol==='Weekly')
+    changes.push({e:'🍷',c:'#f97316',t:'Reduce Alcohol',d:'Daily alcohol damages liver, heart, and sleep quality. Max: 1–2 drinks occasionally.'});
+  if(_data.lateeat==='Regularly')
+    changes.push({e:'🌙',c:'#a78bfa',t:'No Late-Night Eating',d:'Finish your last meal by 8–9pm. Late eating raises blood sugar, causes weight gain, and disrupts sleep.'});
+
+  const card=document.getElementById('behCard');
+  if(!changes.length){card.innerHTML='<div class="bitem"><div class="bico" style="background:rgba(34,211,160,0.1)">✅</div><div><div class="btitle" style="color:var(--green)">No major red flags!</div><div class="bdesc">Your habits are mostly healthy. Stay consistent.</div></div></div>';return;}
+  card.innerHTML=changes.map(c=>`<div class="bitem"><div class="bico" style="background:rgba(${h2r(c.c.replace('#',''))},0.1)">${c.e}</div><div><div class="btitle">${c.t}</div><div class="bdesc">${c.d}</div></div></div>`).join('');
+}
+
+function buildToDo(){
+  const top=Object.values(_results).sort((a,b)=>b.score-a.score);
   const todos=[
-    {e:'🩺',c:'#3b9eff',t:'Book a Full Health Checkup',d:`Get blood tests for glucose, HbA1c, cholesterol, BP, thyroid, and Vitamin D. ${data.doctorVisit==='Rarely / Never'?'You\'ve been avoiding the doctor — this is now urgent.':'Make annual checkups a non-negotiable habit.'}`},
+    {e:'🩺',c:'#3b9eff',t:'Book a Full Health Checkup',d:`Get blood tests for glucose, HbA1c, cholesterol, BP, thyroid, and Vitamin D. ${_data.doctorVisit==='Rarely/Never'?'You\'ve been avoiding the doctor — this is urgent.':'Make annual checkups non-negotiable.'}`},
   ];
-  if(data.bmi>25)todos.push({e:'⚖️',c:'#22d3a0',t:'Start a Weight Loss Plan',d:'Target 0.5–1 kg/week through calorie deficit + exercise. Don\'t crash diet — sustainable slow loss is the only method that works long-term. Track food using a phone app.'});
-  if(data.fruitveg==='Almost Never'||data.fruitveg==='Rarely')todos.push({e:'🥦',c:'#84cc16',t:'Add Vegetables to Every Meal',d:'Start by adding spinach/cucumber to one meal daily. Aim for 5 fruit/veg servings per day within 2 weeks. Berries, leafy greens, and tomatoes are the most protective.'});
-  todos.push({e:'🌅',c:'#a78bfa',t:'Build a Morning Routine',d:'Wake at a fixed time → drink 1 glass of water → 10 min stretch or yoga → nutritious breakfast. This one habit reshapes your entire metabolism and mental state.'});
-  if(top[0].score>40)todos.push({e:'📊',c:'#f5a623',t:`Monitor ${top[0].name} Markers`,d:`With ${top[0].score}% risk score, track: ${top[0].factors.slice(0,2).join(', ')}. Self-monitor at home and discuss results with your doctor at next visit.`});
-  todos.push({e:'🫁',c:'#06b6d4',t:'Practice Breathing Daily',d:'5 min of slow deep breathing reduces cortisol, lowers BP, and improves focus. Try 4-7-8 technique: inhale 4s, hold 7s, exhale 8s. Do this every morning and before bed.'});
-  if(data.doctorVisit==='Rarely / Never')todos.push({e:'🏥',c:'#ff5252',t:'Stop Avoiding Doctors',d:'Many serious diseases are caught in routine checkups — diabetes, cancer, and hypertension often have no symptoms until severe. A 30-min checkup could save your life.'});
+  if(_data.bmi>25)todos.push({e:'⚖️',c:'#22d3a0',t:'Start a Weight Management Plan',d:'Target 0.5–1 kg/week loss through calorie deficit + exercise. Track food with a phone app.'});
+  if(_data.fruitveg==='Almost Never'||_data.fruitveg==='Rarely')todos.push({e:'🥦',c:'#84cc16',t:'Add Vegetables to Every Meal',d:'Aim for 5 fruit/veg servings daily. Start by adding spinach or cucumber to one meal.'});
+  todos.push({e:'🌅',c:'#a78bfa',t:'Build a Morning Routine',d:'Wake at a fixed time → 1 glass water → 10 min stretch → nutritious breakfast. This one habit reshapes your metabolism.'});
+  if(top[0].score>40)todos.push({e:'📊',c:'#f5a623',t:`Monitor ${top[0].name}`,d:`With ${top[0].score}% risk, track: ${top[0].factors.slice(0,2).join(', ')}. Self-monitor and discuss at your next doctor visit.`});
+  todos.push({e:'🫁',c:'#06b6d4',t:'Breathe Deeply Every Day',d:'5 min of deep breathing reduces cortisol and lowers BP. Try 4-7-8: inhale 4s, hold 7s, exhale 8s. Do this every morning.'});
 
-  document.getElementById('doList').innerHTML=todos.map((t,i)=>`
-    <div class="precaution-card good" style="animation:fadeIn .4s ease ${i*0.07}s both">
-      <div class="pre-icon">${t.e}</div>
-      <div class="pre-content"><h4>${t.t}</h4><p>${t.d}</p></div>
-    </div>`).join('');
+  document.getElementById('doList').innerHTML=todos.map((t,i)=>`<div class="pcard good" style="animation:fin .4s ease ${i*0.07}s both"><div class="pico">${t.e}</div><div><div class="ptitle">${t.t}</div><div class="pdesc">${t.d}</div></div></div>`).join('');
 }
 
-function buildSuffering(data){
-  const sec=document.getElementById('alreadySufferingSection');
-  if(!data.cc.length){sec.innerHTML='';return;}
+function buildSuffering(){
+  const sec=document.getElementById('sufferSection');
+  if(!_data.cc.length){sec.innerHTML='';return;}
   const map={
-    'Shortness':['Stop any intense activity until seen by doctor','Sleep with head elevated (use extra pillow)','Avoid dusty, polluted or smoky environments','Track episodes — note time, duration, activity beforehand'],
-    'Fatigue':['Test for iron, B12, Vitamin D, and thyroid (common culprits)','Ensure 7–9h uninterrupted sleep — use white noise if needed','Eat iron-rich foods: lentils, spinach, eggs, dark chocolate','Avoid caffeine after 2pm — it wrecks sleep quality'],
-    'Headaches':['Track triggers: skipped meals, dehydration, screen time, stress','Drink minimum 2.5L water daily starting today','Take regular neck and shoulder breaks — stretch every hour','Ensure 7–9h sleep — most chronic headaches are sleep-related'],
-    'Blood Pressure':['Check BP at home every morning and evening (buy a cheap cuff)','Reduce salt intake drastically — under 5g/day total','Eliminate alcohol and reduce caffeine completely','Never skip prescribed BP medication — stopping suddenly is dangerous'],
-    'Blood Sugar':['Test fasting and post-meal glucose twice weekly','Cut all sugar-sweetened drinks — switch to water or black tea','Walk 15 minutes after every main meal — it lowers blood sugar by 20%','Eat smaller, more frequent meals to keep glucose stable'],
-    'Joint':['Lose weight if overweight — every kg lost removes 4kg of knee pressure','Do low-impact exercise only: swimming, cycling, gentle yoga','Apply warm compress for chronic pain; cold pack for sudden flare-ups','Avoid staying in one position for more than 45 minutes'],
-    'Anxiety':['Start 10 min daily mindfulness meditation (free apps: Insight Timer, Headspace)','Reduce social media consumption — it directly worsens anxiety','Walk outdoors 20 min/day — nature and movement both lower anxiety','Talk to a mental health professional — CBT therapy has 80%+ success rate'],
-    'Weight Gain':['Keep a food diary for 7 days — identify exact problem habits','Weigh yourself once weekly only, at same time, same conditions','Replace all liquid calories (juice, soda, chai with sugar) with water','Start with 20-min daily walks before considering gym']
+    'Shortness':['Stop strenuous activity until evaluated by a doctor','Sleep with head elevated','Avoid dusty or polluted environments','Track when it occurs — note time and activity beforehand'],
+    'Fatigue':['Test for iron, B12, Vitamin D, and thyroid (common causes)','Ensure 7–9h uninterrupted sleep — use white noise','Eat iron-rich foods: lentils, spinach, eggs','Avoid caffeine after 2pm'],
+    'Headaches':['Track triggers: dehydration, screen time, skipped meals','Drink minimum 2.5L water daily','Take regular neck and shoulder stretch breaks hourly','Ensure 7–9h sleep — most chronic headaches are sleep-related'],
+    'Blood Pressure':['Check BP at home morning and evening','Reduce salt to under 5g/day total','Never skip prescribed BP medication','Eliminate alcohol and reduce caffeine'],
+    'Blood Sugar':['Test fasting and post-meal glucose twice weekly','Cut all sugar-sweetened drinks immediately','Walk 15 minutes after every main meal','Eat smaller, more frequent meals'],
+    'Joint':['Lose weight if overweight — every kg removes 4kg of joint pressure','Do low-impact exercise: swimming, cycling, yoga','Warm compress for chronic pain; cold pack for sudden flare-ups','Never stay in one position for more than 45 minutes'],
+    'Anxiety':['10 min mindfulness meditation daily (free apps: Insight Timer)','Reduce social media — it directly worsens anxiety','Walk outdoors 20 min/day','Consider CBT therapy — 80%+ success rate'],
+    'Weight Gain':['Keep a food diary for 7 days — identify problem habits','Weigh yourself once weekly, same time and conditions','Replace all liquid calories with water','Start with 20-min daily walks before any gym plan']
   };
-  let html='<div class="section-heading">🚨 You\'re Currently Experiencing Symptoms</div>';
-  data.cc.forEach(cond=>{
+  let html='<div class="sh">🚨 You\'re Currently Experiencing Symptoms</div>';
+  _data.cc.forEach(cond=>{
     const key=Object.keys(map).find(k=>cond.includes(k));
     const steps=key?map[key]:['See a doctor for proper evaluation','Keep a symptom diary','Do not self-medicate'];
-    html+=`<div class="suffering-alert"><h4>⚠️ ${cond}</h4><ul>${steps.map(s=>`<li>${s}</li>`).join('')}</ul></div>`;
+    html+=`<div class="salert"><h4>⚠️ ${cond}</h4><ul>${steps.map(s=>`<li>${s}</li>`).join('')}</ul></div>`;
   });
   sec.innerHTML=html;
 }
 
 function buildClinic(){
-  document.getElementById('clinicSection').innerHTML=`
-    <div class="clinic-section">
+  document.getElementById('clinicSec').innerHTML=`
+    <div class="clinic-sec">
       <h3>🏥 Find Nearest Clinic / Hospital</h3>
-      <p style="font-size:.8rem;color:var(--muted2);margin-bottom:.9rem;line-height:1.6">
-        Your risk score is high. The AI strongly recommends seeing a physician soon.
-        Tap below to locate hospitals and clinics near your current position.
-      </p>
-      <button class="clinic-btn" onclick="findClinics()">📍 Find Nearest Clinics Now</button>
-      <div id="clinicResults" style="margin-top:.9rem"></div>
-      <p id="locationNote" style="font-size:.7rem;color:var(--muted);text-align:center;margin-top:.55rem;line-height:1.5"></p>
+      <p style="font-size:.78rem;color:var(--mu2);margin-bottom:.8rem;line-height:1.6">Your risk score is high. The AI strongly recommends seeing a physician soon. Tap below to locate hospitals near you.</p>
+      <button class="cbtn" onclick="findClinics()">📍 Find Nearest Clinics Now</button>
+      <div id="clinicRes" style="margin-top:.8rem"></div>
+      <p id="clinicNote" style="font-size:.68rem;color:var(--mu);text-align:center;margin-top:.5rem;line-height:1.5"></p>
     </div>`;
 }
 
 function findClinics(){
-  const r=document.getElementById('clinicResults');
-  r.innerHTML='<p style="color:var(--muted2);font-size:.8rem;text-align:center;padding:.8rem">📍 Accessing your location…</p>';
+  const r=document.getElementById('clinicRes');
+  r.innerHTML='<p style="color:var(--mu2);font-size:.78rem;text-align:center;padding:.7rem">📍 Getting your location…</p>';
   if(!navigator.geolocation){showFallback(r);return;}
   navigator.geolocation.getCurrentPosition(pos=>{
     const{latitude:lat,longitude:lng}=pos.coords;
-    r.innerHTML=`
-      <div style="background:rgba(0,212,180,0.06);border:1px solid rgba(0,212,180,0.18);border-radius:11px;padding:1.1rem">
-        <p style="font-size:.82rem;color:var(--text);margin-bottom:.7rem">✅ Location found: <strong style="color:var(--teal)">${lat.toFixed(4)}, ${lng.toFixed(4)}</strong></p>
-        <a href="https://www.google.com/maps/search/hospital+near+me/@${lat},${lng},14z" target="_blank" class="clinic-btn" style="margin-bottom:.55rem;display:flex">
-          🏥 Hospitals Near Me — Google Maps
-        </a>
-        <a href="https://www.google.com/maps/search/general+physician+near+me/@${lat},${lng},15z" target="_blank" class="clinic-btn" style="margin-bottom:.55rem;display:flex">
-          👨‍⚕️ General Physicians Near Me
-        </a>
-        <a href="https://www.google.com/maps/search/clinic+near+me/@${lat},${lng},15z" target="_blank" class="clinic-btn" style="display:flex">
-          🏪 Clinics Near Me
-        </a>
-      </div>`;
-    document.getElementById('locationNote').textContent='Google Maps will show real-time ratings, distance, and directions.';
+    r.innerHTML=`<div style="background:rgba(0,212,180,0.06);border:1px solid rgba(0,212,180,0.18);border-radius:10px;padding:1rem">
+      <p style="font-size:.8rem;color:var(--tx);margin-bottom:.65rem">✅ Location: <strong style="color:var(--teal)">${lat.toFixed(4)}, ${lng.toFixed(4)}</strong></p>
+      <a href="https://www.google.com/maps/search/hospital+near+me/@${lat},${lng},14z" target="_blank" class="cbtn" style="margin-bottom:.5rem;display:flex">🏥 Hospitals Near Me</a>
+      <a href="https://www.google.com/maps/search/general+physician+near+me/@${lat},${lng},15z" target="_blank" class="cbtn" style="margin-bottom:.5rem;display:flex">👨‍⚕️ General Physicians Near Me</a>
+      <a href="https://www.google.com/maps/search/clinic+near+me/@${lat},${lng},15z" target="_blank" class="cbtn" style="display:flex">🏪 Clinics Near Me</a>
+    </div>`;
+    document.getElementById('clinicNote').textContent='Google Maps will show real-time ratings, distance, and directions.';
   },()=>showFallback(r));
 }
 
 function showFallback(r){
-  r.innerHTML=`
-    <div style="background:rgba(59,158,255,0.06);border:1px solid rgba(59,158,255,0.18);border-radius:11px;padding:1rem">
-      <p style="font-size:.79rem;color:var(--muted2);margin-bottom:.7rem">Location access denied. Use these links to search manually:</p>
-      <a href="https://www.google.com/maps/search/hospital+near+me" target="_blank" class="clinic-btn" style="margin-bottom:.5rem;display:flex">🏥 Search Hospitals</a>
-      <a href="https://www.google.com/maps/search/general+physician+near+me" target="_blank" class="clinic-btn" style="margin-bottom:.5rem;display:flex">👨‍⚕️ Find General Physicians</a>
-      <a href="https://www.practo.com" target="_blank" class="clinic-btn" style="display:flex">💊 Book on Practo</a>
-    </div>`;
-  document.getElementById('locationNote').textContent='Allow location permission next time for precise nearby results.';
+  r.innerHTML=`<div style="background:rgba(59,158,255,0.06);border:1px solid rgba(59,158,255,0.18);border-radius:10px;padding:.9rem">
+    <p style="font-size:.78rem;color:var(--mu2);margin-bottom:.65rem">Location access denied. Search manually:</p>
+    <a href="https://www.google.com/maps/search/hospital+near+me" target="_blank" class="cbtn" style="margin-bottom:.45rem;display:flex">🏥 Search Hospitals</a>
+    <a href="https://www.google.com/maps/search/general+physician+near+me" target="_blank" class="cbtn" style="margin-bottom:.45rem;display:flex">👨‍⚕️ Find Physicians</a>
+    <a href="https://www.practo.com" target="_blank" class="cbtn" style="display:flex">💊 Book on Practo</a>
+  </div>`;
 }
 
-// ═══════════════════════════
-// RESET
-// ═══════════════════════════
-function resetAll(){
-  document.getElementById('resultsScreen').style.display='none';
-  for(let i=1;i<=5;i++)document.getElementById('step'+i).classList.remove('active');
-  document.querySelectorAll('.loading-step').forEach(s=>s.classList.remove('show','done'));
-  document.getElementById('step1').classList.add('active');
-  currentStep=1;updateProgress(1);
-  ['age','height','weight'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
-  document.getElementById('sex').value='';
-  document.getElementById('bmiDisplay').style.display='none';
-  [{id:'sleep',v:7,s:'h'},{id:'sitting',v:8,s:'h'},{id:'stress',v:5,s:''},{id:'screentime',v:4,s:'h'}].forEach(({id,v,s})=>{
-    document.getElementById(id).value=v;
-    document.getElementById(id+'Val').textContent=v+s;
-  });
-  document.querySelectorAll('.option-btn').forEach(b=>b.classList.remove('selected'));
-  document.querySelectorAll('.check-tag').forEach(t=>t.classList.remove('on'));
-  document.getElementById('extraNotes').value='';
-  document.getElementById('clinicSection').innerHTML='';
-  document.getElementById('alreadySufferingSection').innerHTML='';
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-
-
-// ═══════════════════════════
-// LOCAL STORAGE — AUTO SAVE & HISTORY
-// ═══════════════════════════
-function saveFormData(data){
-  try{ localStorage.setItem('healthFormData',JSON.stringify(data)); }catch(e){}
-}
-function loadFormData(){
+// ══════════════════════════════════
+// HISTORY
+// ══════════════════════════════════
+function saveHistory(overall){
   try{
-    const saved=localStorage.getItem('healthFormData');
+    const h=JSON.parse(localStorage.getItem('hh')||'[]');
+    h.unshift({date:new Date().toLocaleString(),age:_data.age,bmi:_data.bmi,overall,
+      diseases:Object.values(_results).map(r=>({n:r.name,s:r.score}))});
+    localStorage.setItem('hh',JSON.stringify(h.slice(0,10)));
+  }catch(e){}
+}
+
+function buildHistory(){
+  try{
+    const h=JSON.parse(localStorage.getItem('hh')||'[]');
+    if(h.length<2){document.getElementById('histSec').innerHTML='';return;}
+    let html=`<div class="sh">📈 Your Analysis History</div><div class="hist-sec">`;
+    h.slice(0,5).forEach((e,i)=>{
+      const col=e.overall<25?'var(--green)':e.overall<50?'var(--amber)':e.overall<75?'var(--red)':'#ff0000';
+      const rl=e.overall<25?'Low':e.overall<50?'Moderate':e.overall<75?'High':'Critical';
+      html+=`<div class="hrow"><div><div style="font-size:.8rem;font-weight:600;color:var(--tx)">${i===0?'✅ Current':'Analysis #'+(i+1)}</div><div style="font-size:.7rem;color:var(--mu)">${e.date} · BMI ${e.bmi} · Age ${e.age}</div></div>
+      <div style="text-align:right"><div style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;color:${col}">${e.overall}%</div><div style="font-size:.68rem;color:${col}">${rl}</div></div></div>`;
+    });
+    html+=`<button onclick="(()=>{try{localStorage.removeItem('hh');}catch(e){}document.getElementById('histSec').innerHTML=''})()" style="width:100%;margin-top:.55rem;background:transparent;border:1px solid var(--b1);color:var(--mu);border-radius:7px;padding:.38rem;font-size:.72rem;cursor:pointer;">🗑️ Clear History</button></div>`;
+    document.getElementById('histSec').innerHTML=html;
+  }catch(e){}
+}
+
+// ══════════════════════════════════
+// LOCAL STORAGE — SAVE & LOAD
+// ══════════════════════════════════
+function saveData(d){
+  try{localStorage.setItem('hfd',JSON.stringify(d));}catch(e){}
+}
+
+function loadData(){
+  try{
+    const saved=localStorage.getItem('hfd');
     if(!saved)return;
     const d=JSON.parse(saved);
     ['age','height','weight'].forEach(id=>{if(d[id]&&document.getElementById(id))document.getElementById(id).value=d[id];});
     if(d.sex)document.getElementById('sex').value=d.sex;
     [{id:'sleep',s:'h'},{id:'sitting',s:'h'},{id:'stress',s:''},{id:'screentime',s:'h'}].forEach(({id,s})=>{
-      if(d[id]!==undefined){document.getElementById(id).value=d[id];document.getElementById(id+'Val').textContent=d[id]+s;}
+      if(d[id]!==undefined){document.getElementById(id).value=d[id];document.getElementById(id+'V').textContent=d[id]+s;}
     });
-    const optMap={workType:d.workType,exercise:d.exercise,water:d.water,smoking:d.smoking,
+    const opts={workType:d.workType,exercise:d.exercise,water:d.water,smoking:d.smoking,
       alcohol:d.alcohol,junkfood:d.junkfood,meds:d.meds,meals:d.meals,
       dietType:d.dietType,fruitveg:d.fruitveg,breakfast:d.breakfast,lateeat:d.lateeat,doctorVisit:d.doctorVisit};
-    Object.entries(optMap).forEach(([group,val])=>{
+    Object.entries(opts).forEach(([g,val])=>{
       if(!val)return;
-      document.querySelectorAll('#'+group+' .option-btn').forEach(b=>{
-        if(b.querySelector('.opt-label').textContent.trim()===val)b.classList.add('selected');
-      });
+      document.querySelectorAll('#'+g+' .opt').forEach(b=>{if(b.querySelector('.ol').textContent.trim()===val)b.classList.add('sel');});
     });
-    if(d.fh)document.querySelectorAll('#familyHistory .check-tag').forEach(t=>{if(d.fh.some(f=>t.textContent.trim()===f))t.classList.add('on');});
-    if(d.cc)document.querySelectorAll('#currentConditions .check-tag').forEach(t=>{if(d.cc.some(f=>t.textContent.trim()===f))t.classList.add('on');});
+    if(d.fh)document.querySelectorAll('#familyHistory .ctag').forEach(t=>{if(d.fh.some(f=>t.textContent.trim()===f))t.classList.add('on');});
+    if(d.cc)document.querySelectorAll('#currentConditions .ctag').forEach(t=>{if(d.cc.some(f=>t.textContent.trim()===f))t.classList.add('on');});
     if(d.extra)document.getElementById('extraNotes').value=d.extra;
+    if(d.otherName)document.getElementById('otherName').value=d.otherName;
+    if(d.otherDesc)document.getElementById('otherDesc').value=d.otherDesc;
+    if(d.hasOther==='Yes, I do'){
+      document.querySelectorAll('#hasOther .opt').forEach(b=>{if(b.querySelector('.ol').textContent.trim()==='Yes, I do')b.classList.add('sel');});
+      toggleOther(true);
+    }
     calcBMI();
-    const banner=document.createElement('div');
-    banner.id='savedBanner';
-    banner.style.cssText='position:fixed;bottom:1.2rem;right:1.2rem;background:rgba(0,212,180,0.12);border:1px solid rgba(0,212,180,0.35);color:#00d4b4;padding:.6rem 1.1rem;border-radius:10px;font-size:.8rem;font-weight:600;z-index:999;display:flex;align-items:center;gap:.5rem;';
-    banner.innerHTML='✅ Previous data loaded! <button onclick="clearSavedData()" style="background:none;border:none;color:#637a99;cursor:pointer;font-size:.75rem;margin-left:.4rem">Clear</button>';
-    document.body.appendChild(banner);
-    setTimeout(()=>{if(banner.parentNode)banner.remove();},4000);
-  }catch(e){}
-}
-function clearSavedData(){
-  try{localStorage.removeItem('healthFormData');}catch(e){}
-  const b=document.getElementById('savedBanner');if(b)b.remove();
-}
-function saveToHistory(data,results,overall){
-  try{
-    const history=JSON.parse(localStorage.getItem('healthHistory')||'[]');
-    history.unshift({date:new Date().toLocaleString(),age:data.age,sex:data.sex,height:data.height,weight:data.weight,bmi:data.bmi,overall,
-      diseases:Object.entries(results).map(([k,v])=>({name:v.name,score:v.score}))});
-    localStorage.setItem('healthHistory',JSON.stringify(history.slice(0,10)));
+    document.getElementById('savedBadge').style.display='flex';
   }catch(e){}
 }
 
-// ═══════════════════════════
-// EXCEL / CSV EXPORT
-// ═══════════════════════════
-function exportToExcel(data,results,overall){
-  const risk=overall<25?'Low':overall<50?'Moderate':overall<75?'High':'Critical';
-  const date=new Date().toLocaleString();
-  let csv='AI HEALTH ANALYZER — Personal Report\n';
-  csv+=`Generated:,${date}\n\n`;
-  csv+='PERSONAL INFORMATION\n';
-  csv+=`Age,${data.age}\nSex,${data.sex}\nHeight (cm),${data.height}\nWeight (kg),${data.weight}\nBMI,${data.bmi}\nOverall Risk Score,${overall}%\nRisk Level,${risk}\n\n`;
-  csv+='LIFESTYLE DATA\n';
-  csv+=`Sleep Hours,${data.sleep}h\nDaily Sitting,${data.sitting}h\nStress Level,${data.stress}/10\nScreen Time,${data.screentime}h\nWork Type,${data.workType}\nExercise Frequency,${data.exercise}\nDaily Water Intake,${data.water}\nSmoking,${data.smoking}\nAlcohol,${data.alcohol}\nJunk Food,${data.junkfood}\nDiet Type,${data.dietType}\nMeals Per Day,${data.meals}\nFruit & Veg Intake,${data.fruitveg}\nSkips Breakfast,${data.breakfast}\nLate Night Eating,${data.lateeat}\n\n`;
-  csv+='DISEASE RISK SCORES\nDisease,Risk Score,Risk Level,Top Factors\n';
-  Object.values(results).sort((a,b)=>b.score-a.score).forEach(r=>{
+// ══════════════════════════════════
+// PDF REPORT
+// ══════════════════════════════════
+function genPDF(){
+  try{
+    const{jsPDF}=window.jspdf;
+    const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    const W=210,M=18,CW=W-M*2;
+    let y=0;
+
+    // Helpers
+    const line=(yy,c='#1a2e44')=>{doc.setDrawColor(c);doc.setLineWidth(0.3);doc.line(M,yy,W-M,yy);};
+    const rect=(x,yy,w,h,c)=>{doc.setFillColor(c);doc.rect(x,yy,w,h,'F');};
+    const txt=(t,x,yy,sz,bold,c='#e2eaf7')=>{
+      doc.setFontSize(sz);doc.setFont('helvetica',bold?'bold':'normal');doc.setTextColor(c);doc.text(String(t),x,yy);
+    };
+
+    // Cover
+    rect(0,0,W,60,'#04080f');
+    rect(0,0,W,2,'#00d4b4');
+    txt('AI Health Analyzer',W/2,22,22,true,'#00d4b4');doc.setFont('helvetica','normal');
+    doc.setFontSize(11);doc.setTextColor('#8899bb');doc.text('Genetic Risk & Lifestyle Predictor — Personal Health Report',W/2,30,{align:'center'});
+    doc.setFontSize(9);doc.setTextColor('#637a99');
+    doc.text(`Generated: ${new Date().toLocaleString()}`,W/2,38,{align:'center'});
+    doc.text(`Patient: ${_data.age}yr ${_data.sex}  |  ${_data.height}cm / ${_data.weight}kg  |  BMI ${_data.bmi}`,W/2,44,{align:'center'});
+    rect(0,58,W,2,'#8b5cf6');
+    y=72;
+
+    // Overall Score
+    const rk=rlevel(_overall);
+    rect(M,y,CW,28,'#0c1220');
+    txt(`Overall Risk Score: ${_overall}%`,M+6,y+10,16,true,rk.c==='var(--green)'?'#22d3a0':rk.c==='var(--amber)'?'#f5a623':rk.c==='var(--red)'?'#ff5252':'#ff0000');
+    txt(rk.l,M+6,y+18,10,false,'#8899bb');
+    txt(overallDesc(_data,_overall).slice(0,100)+'...',M+6,y+24,8,false,'#637a99');
+    y+=34;
+
+    // BMI
+    txt('BMI Analysis',M,y,12,true,'#00d4b4');y+=6;
+    const bmiCol=_data.bmi<18.5?'#3b9eff':_data.bmi<25?'#22d3a0':_data.bmi<30?'#f5a623':'#ff5252';
+    const bmiCat=_data.bmi<18.5?'Underweight':_data.bmi<25?'Normal':_data.bmi<30?'Overweight':'Obese';
+    txt(`BMI: ${_data.bmi}  —  ${bmiCat}`,M,y,10,true,bmiCol);y+=10;
+
+    // Disease Scores
+    txt('Disease Risk Breakdown',M,y,12,true,'#00d4b4');y+=7;
+    Object.values(_results).sort((a,b)=>b.score-a.score).forEach(r=>{
+      if(y>270){doc.addPage();y=20;}
+      rect(M,y-4,CW,8,'#0c1220');
+      const dc=r.col.startsWith('#')?r.col:'#00d4b4';
+      txt(`${r.icon} ${r.name}`,M+3,y+1,9,true,dc);
+      txt(`${r.score}%`,W-M-8,y+1,9,true,dc);
+      txt(r.factors.slice(0,3).join(' · ')||'No major factors',M+3,y+5.5,7,false,'#637a99');
+      y+=12;
+    });
+
+    // Lifestyle Summary
+    if(y>240){doc.addPage();y=20;}
+    y+=4;txt('Lifestyle Data Summary',M,y,12,true,'#00d4b4');y+=7;
+    const ld=[
+      ['Sleep',`${_data.sleep}h/night`,_data.sleep<6?'⚠️ Too Low':'✅'],
+      ['Exercise',_data.exercise,_data.exercise==='Rarely/Never'?'⚠️ Sedentary':'✅'],
+      ['Water',_data.water,_data.water==='Under 1L'?'⚠️ Low':'✅'],
+      ['Smoking',_data.smoking,_data.smoking==='Daily Smoker'?'🚨 High Risk':'✅'],
+      ['Alcohol',_data.alcohol,_data.alcohol==='Daily'?'🚨 High Risk':'✅'],
+      ['Junk Food',_data.junkfood,_data.junkfood==='Daily'?'⚠️ Too Often':'✅'],
+      ['Stress Level',`${_data.stress}/10`,_data.stress>7?'⚠️ High':'✅'],
+      ['Sitting',`${_data.sitting}h/day`,_data.sitting>8?'⚠️ Too Much':'✅'],
+    ];
+    ld.forEach(([k,v,flag],i)=>{
+      if(y>270){doc.addPage();y=20;}
+      rect(M,y-3.5,CW,7,i%2===0?'#0c1220':'#111c2e');
+      txt(k,M+3,y+1,8,true,'#8899bb');
+      txt(v,M+45,y+1,8,false,'#e2eaf7');
+      txt(flag,W-M-18,y+1,8,false,'#e2eaf7');
+      y+=8;
+    });
+
+    // Other disease
+    if(_data.hasOther==='Yes, I do'&&_data.otherName){
+      if(y>240){doc.addPage();y=20;}
+      y+=4;txt(`Other Condition: ${_data.otherName}`,M,y,12,true,'#a78bfa');y+=6;
+      txt(`Treatment: ${_data.otherTreatment}`,M,y,9,false,'#8899bb');y+=6;
+      if(_data.otherDesc){
+        const wrapped=doc.splitTextToSize(_data.otherDesc,CW);
+        doc.setFontSize(8);doc.setTextColor('#637a99');doc.text(wrapped,M,y);
+        y+=wrapped.length*4+4;
+      }
+    }
+
+    // Footer
+    if(y>255){doc.addPage();y=20;}
+    y=Math.max(y+8,260);
+    line(y,'#1a2e44');y+=5;
+    doc.setFontSize(7);doc.setTextColor('#637a99');doc.setFont('helvetica','normal');
+    doc.text('This report is generated by AI Health Analyzer for educational purposes only. Not a substitute for professional medical advice.',M,y,{maxWidth:CW});
+    doc.text(`Page 1  |  AI Health Analyzer  |  github.com/Sensei017/ai-health-analyzer`,W/2,y+5,{align:'center'});
+
+    doc.save(`AI-Health-Report-${new Date().toISOString().slice(0,10)}.pdf`);
+    showToast('📄 PDF report downloaded!');
+  }catch(e){
+    showToast('⚠️ PDF library loading... try again in a moment');
+    console.error(e);
+  }
+}
+
+// ══════════════════════════════════
+// CSV EXPORT
+// ══════════════════════════════════
+function genCSV(){
+  const rk=rlevel(_overall);
+  let csv=`AI HEALTH ANALYZER — Personal Report\nGenerated:,${new Date().toLocaleString()}\n\n`;
+  csv+=`PERSONAL INFORMATION\nAge,${_data.age}\nSex,${_data.sex}\nHeight (cm),${_data.height}\nWeight (kg),${_data.weight}\nBMI,${_data.bmi}\nOverall Risk Score,${_overall}%\nRisk Level,${rk.l}\n\n`;
+  csv+=`LIFESTYLE DATA\nSleep Hours,${_data.sleep}h\nSitting,${_data.sitting}h\nStress,${_data.stress}/10\nScreen Time,${_data.screentime}h\nWork Type,${_data.workType}\nExercise,${_data.exercise}\nWater,${_data.water}\nSmoking,${_data.smoking}\nAlcohol,${_data.alcohol}\nJunk Food,${_data.junkfood}\nDiet,${_data.dietType}\nMeals/Day,${_data.meals}\nFruits & Veg,${_data.fruitveg}\nSkips Breakfast,${_data.breakfast}\nLate Eating,${_data.lateeat}\n\n`;
+  csv+=`DISEASE RISK SCORES\nDisease,Score,Risk Level,Top Factors\n`;
+  Object.values(_results).sort((a,b)=>b.score-a.score).forEach(r=>{
     const rl=r.score<25?'Low':r.score<50?'Moderate':r.score<75?'High':'Critical';
     csv+=`${r.name},${r.score}%,${rl},"${r.factors.slice(0,3).join(' | ')}"\n`;
   });
-  csv+=`\nOVERALL SCORE,${overall}%,${risk}\n\n`;
-  csv+='MEDICAL HISTORY\n';
-  csv+=`Family History,"${data.fh.join(', ')||'None'}"\nCurrent Symptoms,"${data.cc.join(', ')||'None'}"\nDoctor Visits,${data.doctorVisit}\n\n`;
+  csv+=`\nOVERALL,${_overall}%,${rk.l}\n\n`;
+  csv+=`MEDICAL HISTORY\nFamily History,"${_data.fh.join(', ')||'None'}"\nCurrent Symptoms,"${_data.cc.join(', ')||'None'}"\nDoctor Visits,${_data.doctorVisit}\n`;
+  if(_data.hasOther==='Yes, I do'&&_data.otherName){
+    csv+=`\nOTHER CONDITION\nCondition Name,${_data.otherName}\nTreatment,${_data.otherTreatment}\nDescription,"${_data.otherDesc}"\n`;
+  }
   try{
-    const history=JSON.parse(localStorage.getItem('healthHistory')||'[]');
-    if(history.length>1){
-      csv+=`ANALYSIS HISTORY\nDate,Age,BMI,Overall Risk,Risk Level\n`;
-      history.forEach(h=>{const hl=h.overall<25?'Low':h.overall<50?'Moderate':h.overall<75?'High':'Critical';csv+=`${h.date},${h.age},${h.bmi},${h.overall}%,${hl}\n`;});
+    const h=JSON.parse(localStorage.getItem('hh')||'[]');
+    if(h.length>1){
+      csv+=`\nANALYSIS HISTORY\nDate,Age,BMI,Overall Risk\n`;
+      h.forEach(e=>csv+=`${e.date},${e.age},${e.bmi},${e.overall}%\n`);
     }
   }catch(e){}
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
   const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;a.download=`AI-Health-Report-${new Date().toISOString().slice(0,10)}.csv`;
+  const a=document.createElement('a');a.href=url;
+  a.download=`AI-Health-Report-${new Date().toISOString().slice(0,10)}.csv`;
   a.click();URL.revokeObjectURL(url);
+  showToast('📊 Excel/CSV report downloaded!');
 }
 
-// ═══════════════════════════
-// PATCH buildResults
-// ═══════════════════════════
-const _orig=buildResults;
-buildResults=function(data){
-  saveFormData(data);
-  _orig(data);
-  setTimeout(()=>{
-    const res=inferenceEngine(data);
-    const sc=Object.values(res).map(r=>r.score);
-    const ov=Math.round(sc.reduce((a,b)=>a+b,0)/sc.length);
-    saveToHistory(data,res,ov);
-    // Export button
-    if(!document.getElementById('exportBtn')){
-      const btn=document.createElement('button');
-      btn.id='exportBtn';
-      btn.innerHTML='📥 Download My Report (Excel / CSV)';
-      btn.style.cssText="width:100%;margin-top:.8rem;padding:.85rem;background:linear-gradient(135deg,rgba(34,211,160,0.15),rgba(34,211,160,0.08));border:1px solid rgba(34,211,160,0.35);color:#22d3a0;border-radius:11px;font-size:.92rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.6rem;";
-      btn.onclick=()=>exportToExcel(data,res,ov);
-      const rb=document.querySelector('.btn-reset');rb.parentNode.insertBefore(btn,rb);
-    }
-    // History section
-    try{
-      const history=JSON.parse(localStorage.getItem('healthHistory')||'[]');
-      if(history.length>=2&&!document.getElementById('historySection')){
-        const sec=document.createElement('div');
-        sec.id='historySection';
-        sec.style.cssText='background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.3rem;margin-top:.9rem;';
-        let html='<div style="font-family:Calibri,sans-serif;font-size:.95rem;font-weight:600;color:var(--white);margin-bottom:.8rem;">📈 Your Previous Analyses</div>';
-        history.slice(0,5).forEach((h,i)=>{
-          const col=h.overall<25?'#22d3a0':h.overall<50?'#f5a623':h.overall<75?'#ff5252':'#ff0000';
-          const rl=h.overall<25?'Low':h.overall<50?'Moderate':h.overall<75?'High':'Critical';
-          html+=`<div style="display:flex;align-items:center;justify-content:space-between;padding:.6rem 0;border-bottom:1px solid var(--border)">
-            <div><div style="font-size:.82rem;font-weight:600;color:var(--text)">${i===0?'✅ Current':'Analysis #'+(i+1)}</div>
-            <div style="font-size:.72rem;color:var(--muted)">${h.date} · BMI ${h.bmi} · Age ${h.age}</div></div>
-            <div style="text-align:right"><div style="font-size:1.1rem;font-weight:700;color:${col}">${h.overall}%</div>
-            <div style="font-size:.7rem;color:${col}">${rl} Risk</div></div></div>`;
-        });
-        html+='<button onclick="(()=>{try{localStorage.removeItem(\'healthHistory\');}catch(e){}document.getElementById(\'historySection\').remove();})()" style="width:100%;margin-top:.6rem;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:.4rem;font-size:.75rem;cursor:pointer;">🗑️ Clear History</button>';
-        sec.innerHTML=html;
-        const rb=document.querySelector('.btn-reset');rb.parentNode.insertBefore(sec,rb);
-      }
-    }catch(e){}
-  },150);
-};
+// ══════════════════════════════════
+// TOAST
+// ══════════════════════════════════
+function showToast(msg){
+  const t=document.createElement('div');t.className='toast';t.textContent=msg;
+  document.body.appendChild(t);setTimeout(()=>t.remove(),3000);
+}
 
+// ══════════════════════════════════
+// RESET
+// ══════════════════════════════════
+function resetAll(){
+  document.getElementById('resScr').style.display='none';
+  for(let i=1;i<=5;i++)document.getElementById('s'+i).classList.remove('active');
+  document.querySelectorAll('.lstep').forEach(s=>s.classList.remove('show','done'));
+  document.getElementById('s1').classList.add('active');
+  CS=1;upProg(1);
+  ['age','height','weight'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  document.getElementById('sex').value='';
+  document.getElementById('bmiBox').style.display='none';
+  [{id:'sleep',v:7,s:'h'},{id:'sitting',v:8,s:'h'},{id:'stress',v:5,s:''},{id:'screentime',v:4,s:'h'}].forEach(({id,v,s})=>{
+    document.getElementById(id).value=v;document.getElementById(id+'V').textContent=v+s;
+  });
+  document.querySelectorAll('.opt').forEach(b=>b.classList.remove('sel'));
+  document.querySelectorAll('.ctag').forEach(t=>t.classList.remove('on'));
+  document.getElementById('extraNotes').value='';
+  document.getElementById('otherName').value='';
+  document.getElementById('otherDesc').value='';
+  document.getElementById('otherBox').classList.remove('show');
+  document.getElementById('clinicSec').innerHTML='';
+  document.getElementById('sufferSection').innerHTML='';
+  document.getElementById('otherResSection').innerHTML='';
+  document.getElementById('histSec').innerHTML='';
+  document.getElementById('savedBadge').style.display='none';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
 
-// fix range val IDs
+// ══════════════════════════════════
+// INIT
+// ══════════════════════════════════
 document.addEventListener('DOMContentLoaded',()=>{
-  document.getElementById('sleepVal').textContent='7h';
-  document.getElementById('sittingVal').textContent='8h';
-  document.getElementById('stressVal').textContent='5';
-  document.getElementById('screentimeVal').textContent='4h';
-  loadFormData();
+  document.getElementById('sleepV').textContent='7h';
+  document.getElementById('sittingV').textContent='8h';
+  document.getElementById('stressV').textContent='5';
+  document.getElementById('screentimeV').textContent='4h';
+  loadData();
 });
 </script>
 </body>
