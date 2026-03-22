@@ -60,39 +60,114 @@
 /* ── LIGHT MODE ── */
 @media(prefers-color-scheme:light){
   :root{
-    --bg:#f8f0ff;
+    --bg:#f4f6fa;
     --s1:#ffffff;
-    --s2:#ede0ff;
-    --s3:#e4d0ff;
-    --s4:#d8c0ff;
-    --cyan:#0066cc;
-    --cyan2:#0055aa;
-    --magenta:#aa0088;
-    --magenta2:#880066;
-    --purple:#6600cc;
-    --yellow:#886600;
+    --s2:#eef1f8;
+    --s3:#e4e8f4;
+    --s4:#d8ddf0;
+    --cyan:#0077cc;
+    --cyan2:#005fa8;
+    --magenta:#cc0077;
+    --magenta2:#a8005f;
+    --purple:#5500bb;
+    --yellow:#8a6500;
     --red:#cc0033;
-    --green:#007744;
-    --orange:#cc4400;
-    --bone:#0a0020;
-    --bone2:#2a1050;
-    --mu:#8870aa;
-    --mu2:#6050888;
-    --bdr:rgba(0,102,204,0.15);
-    --bdr2:rgba(0,102,204,0.3);
-    --bdr-gold:rgba(170,0,136,0.2);
-    --glow-cyan:0 0 4px rgba(0,102,204,0.5),0 0 10px rgba(0,102,204,0.2);
-    --glow-magenta:0 0 4px rgba(170,0,136,0.5),0 0 10px rgba(170,0,136,0.2);
-    --glow-purple:0 0 4px rgba(102,0,204,0.5),0 0 10px rgba(102,0,204,0.2);
-    --glow-yellow:0 0 4px rgba(136,102,0,0.5),0 0 10px rgba(136,102,0,0.2);
-    --glow-red:0 0 4px rgba(204,0,51,0.5),0 0 10px rgba(204,0,51,0.2);
-    --glow-green:0 0 4px rgba(0,119,68,0.5),0 0 10px rgba(0,119,68,0.2);
+    --green:#006633;
+    --orange:#bb4400;
+    --bone:#0d1117;
+    --bone2:#2a3148;
+    --mu:#6b7590;
+    --mu2:#4a5268;
+    --bdr:rgba(0,119,204,0.18);
+    --bdr2:rgba(0,119,204,0.32);
+    --bdr-gold:rgba(204,0,119,0.18);
+    --glow-cyan:0 0 3px rgba(0,119,204,0.35),0 0 8px rgba(0,119,204,0.15);
+    --glow-magenta:0 0 3px rgba(204,0,119,0.35),0 0 8px rgba(204,0,119,0.15);
+    --glow-purple:0 0 3px rgba(85,0,187,0.35),0 0 8px rgba(85,0,187,0.15);
+    --glow-yellow:0 0 3px rgba(138,101,0,0.35),0 0 8px rgba(138,101,0,0.12);
+    --glow-red:0 0 3px rgba(204,0,51,0.35),0 0 8px rgba(204,0,51,0.15);
+    --glow-green:0 0 3px rgba(0,102,51,0.35),0 0 8px rgba(0,102,51,0.12);
   }
-  body::before{opacity:0.4!important;}
-  body::after{opacity:0.3!important;}
-  .card,.score-card,.bmi-box{box-shadow:0 4px 24px rgba(100,0,200,0.1)!important;}
-  .fg input,.fg select,.fg textarea{background:#fff!important;border-color:rgba(0,102,204,0.2)!important;}
-  .opt{background:#fff!important;}
+  body{background:#f4f6fa!important;}
+  body::before{
+    background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,119,204,0.015) 2px,rgba(0,119,204,0.015) 4px)!important;
+  }
+  body::after{
+    background:
+      radial-gradient(ellipse 60% 40% at 0% 0%,rgba(0,119,204,0.07) 0%,transparent 55%),
+      radial-gradient(ellipse 50% 50% at 100% 100%,rgba(204,0,119,0.05) 0%,transparent 55%)!important;
+    animation:none!important;
+  }
+  .card{
+    background:#ffffff!important;
+    border:1px solid rgba(0,119,204,0.15)!important;
+    box-shadow:0 2px 16px rgba(0,0,0,0.06),0 1px 4px rgba(0,0,0,0.04)!important;
+  }
+  .card::before{
+    background:linear-gradient(90deg,var(--cyan),var(--magenta),var(--purple))!important;
+    box-shadow:none!important;
+  }
+  .score-card{
+    background:#ffffff!important;
+    border:1px solid rgba(0,119,204,0.15)!important;
+    box-shadow:0 2px 16px rgba(0,0,0,0.06)!important;
+  }
+  .score-card::before{box-shadow:none!important;}
+  .bmi-box{background:#f4f6fa!important;border-color:rgba(0,119,204,0.18)!important;box-shadow:none!important;}
+  .bcard,.drow,.hist-sec,.clinic-sec,.other-result,.salert{background:#ffffff!important;border-color:rgba(0,119,204,0.12)!important;}
+  .bitem{border-bottom-color:rgba(0,119,204,0.08)!important;}
+  .drow{box-shadow:0 1px 8px rgba(0,0,0,0.05)!important;}
+  .drow:hover{box-shadow:0 2px 12px rgba(0,119,204,0.1)!important;border-color:rgba(0,119,204,0.25)!important;}
+  .dbar-bg{background:rgba(0,0,0,0.06)!important;}
+  .fg input,.fg select,.fg textarea{
+    background:#f8faff!important;
+    border-color:rgba(0,119,204,0.2)!important;
+    color:#0d1117!important;
+  }
+  .fg input:focus,.fg select:focus,.fg textarea:focus{
+    border-color:var(--cyan)!important;
+    box-shadow:0 0 0 2px rgba(0,119,204,0.12)!important;
+    background:#fff!important;
+  }
+  .fg select option{background:#fff!important;color:#0d1117!important;}
+  .opt{background:#f8faff!important;border-color:rgba(0,119,204,0.15)!important;}
+  .opt:hover{background:#f0f4ff!important;border-color:rgba(0,119,204,0.3)!important;box-shadow:0 2px 8px rgba(0,119,204,0.08)!important;}
+  .opt.sel{background:rgba(0,119,204,0.08)!important;border-color:var(--cyan)!important;color:var(--cyan)!important;}
+  .ctag{background:#f8faff!important;border-color:rgba(0,119,204,0.15)!important;color:#2a3148!important;}
+  .ctag.on{background:rgba(0,119,204,0.08)!important;border-color:var(--cyan)!important;color:var(--cyan)!important;}
+  .rrow input[type=range]{background:rgba(0,119,204,0.15)!important;}
+  .rval{background:#f0f4ff!important;border-color:rgba(0,119,204,0.2)!important;}
+  .btnnext{
+    background:linear-gradient(135deg,rgba(0,119,204,0.12),rgba(0,119,204,0.06))!important;
+    border-color:var(--cyan)!important;color:var(--cyan)!important;
+    box-shadow:0 2px 12px rgba(0,119,204,0.15)!important;
+  }
+  .btnnext:hover{box-shadow:0 4px 18px rgba(0,119,204,0.25)!important;}
+  .btnback{background:#f4f6fa!important;border-color:rgba(0,119,204,0.2)!important;color:#4a5268!important;}
+  .sdot{background:#eef1f8!important;border-color:rgba(0,119,204,0.2)!important;color:#6b7590!important;}
+  .sdot.active{background:var(--cyan)!important;color:#fff!important;box-shadow:0 0 8px rgba(0,119,204,0.35)!important;animation:none!important;}
+  .sdot.done{background:rgba(0,119,204,0.1)!important;color:var(--cyan)!important;}
+  .sline{background:rgba(0,119,204,0.15)!important;}
+  .sline.done{background:var(--cyan)!important;box-shadow:0 0 4px rgba(0,119,204,0.3)!important;}
+  .lstep{background:#f4f6fa!important;border-color:rgba(0,119,204,0.1)!important;color:#6b7590!important;}
+  .lstep.done{color:var(--cyan)!important;border-color:rgba(0,119,204,0.2)!important;box-shadow:none!important;}
+  .pcard{background:#ffffff!important;border-color:rgba(0,0,0,0.08)!important;}
+  .pcard.good{border-left-color:var(--green)!important;}
+  .pcard.urgent{border-left-color:var(--red)!important;}
+  .salert{background:rgba(204,0,51,0.04)!important;border-color:rgba(204,0,51,0.18)!important;}
+  .other-result{background:rgba(85,0,187,0.04)!important;border-color:rgba(85,0,187,0.15)!important;}
+  .other-disease-box{background:rgba(85,0,187,0.04)!important;border-color:rgba(85,0,187,0.18)!important;}
+  .clinic-sec{background:#ffffff!important;border-color:rgba(204,0,51,0.15)!important;}
+  .hdr-icon{border-color:rgba(0,119,204,0.5)!important;background:linear-gradient(135deg,rgba(0,119,204,0.08),rgba(204,0,119,0.05))!important;}
+  .hdr h1{filter:none!important;}
+  .export-row .ebtn-pdf{background:rgba(204,0,119,0.06)!important;border-color:rgba(204,0,119,0.25)!important;}
+  .export-row .ebtn-csv{background:rgba(0,102,51,0.06)!important;border-color:rgba(0,102,51,0.2)!important;}
+  .btnreset{background:#f4f6fa!important;border-color:rgba(0,119,204,0.15)!important;color:#6b7590!important;}
+  .disc{background:#fff!important;border-color:rgba(0,119,204,0.1)!important;}
+  .toast{background:#fff!important;border-color:var(--cyan)!important;box-shadow:0 2px 12px rgba(0,119,204,0.15)!important;}
+  .saved-badge{background:rgba(0,119,204,0.06)!important;border-color:rgba(0,119,204,0.25)!important;}
+  ::-webkit-scrollbar-track{background:#f4f6fa!important;}
+  ::-webkit-scrollbar-thumb{box-shadow:none!important;}
 }
 
 /* ── RESET ── */
@@ -944,18 +1019,18 @@ body::after{
     </div>
   </div>
 
-  <div class="sh">📏 BMI Analysis</div>
+  <div class="sh">BMI Analysis</div>
   <div class="bcard" id="bmiCard"></div>
 
-  <div class="sh">⚠️ Disease Risk Breakdown</div>
+  <div class="sh">Disease Risk Breakdown</div>
   <div class="dlist" id="dList"></div>
 
   <div id="otherResSection"></div>
 
-  <div class="sh">🔄 Behaviours You Must Change</div>
+  <div class="sh">Behaviours You Must Change</div>
   <div class="bcard" id="behCard"></div>
 
-  <div class="sh">✅ What You Should Start Doing</div>
+  <div class="sh">What You Should Start Doing</div>
   <div id="doList"></div>
 
   <div id="sufferSection"></div>
@@ -964,8 +1039,8 @@ body::after{
 
   <!-- EXPORT BUTTONS -->
   <div class="export-row">
-    <button class="ebtn ebtn-pdf" id="pdfBtn" onclick="genPDF()">📄 Download PDF Report</button>
-    <button class="ebtn ebtn-csv" id="csvBtn" onclick="genCSV()">📊 Export to Excel/CSV</button>
+    <button class="ebtn ebtn-pdf" id="pdfBtn" onclick="genPDF()">Download PDF Report</button>
+    <button class="ebtn ebtn-csv" id="csvBtn" onclick="genCSV()">Export to Excel / CSV</button>
   </div>
 
   <button class="btnreset" onclick="resetAll()">↩ START NEW ANALYSIS</button>
@@ -1396,7 +1471,7 @@ function buildSuffering(){
     'Anxiety':['10 min mindfulness meditation daily (free apps: Insight Timer)','Reduce social media — it directly worsens anxiety','Walk outdoors 20 min/day','Consider CBT therapy — 80%+ success rate'],
     'Weight Gain':['Keep a food diary for 7 days — identify problem habits','Weigh yourself once weekly, same time and conditions','Replace all liquid calories with water','Start with 20-min daily walks before any gym plan']
   };
-  let html='<div class="sh">🚨 You\'re Currently Experiencing Symptoms</div>';
+  let html='<div class="sh">Active Symptoms — Precautions</div>';
   _data.cc.forEach(cond=>{
     const key=Object.keys(map).find(k=>cond.includes(k));
     const steps=key?map[key]:['See a doctor for proper evaluation','Keep a symptom diary','Do not self-medicate'];
@@ -1408,9 +1483,9 @@ function buildSuffering(){
 function buildClinic(){
   document.getElementById('clinicSec').innerHTML=`
     <div class="clinic-sec">
-      <h3>🏥 Find Nearest Clinic / Hospital</h3>
+      <h3>Find Nearest Clinic / Hospital</h3>
       <p style="font-size:.78rem;color:var(--mu2);margin-bottom:.8rem;line-height:1.6">Your risk score is high. The AI strongly recommends seeing a physician soon. Tap below to locate hospitals near you.</p>
-      <button class="cbtn" onclick="findClinics()">📍 Find Nearest Clinics Now</button>
+      <button class="cbtn" onclick="findClinics()">Find Nearest Clinics</button>
       <div id="clinicRes" style="margin-top:.8rem"></div>
       <p id="clinicNote" style="font-size:.68rem;color:var(--mu);text-align:center;margin-top:.5rem;line-height:1.5"></p>
     </div>`;
@@ -1424,9 +1499,9 @@ function findClinics(){
     const{latitude:lat,longitude:lng}=pos.coords;
     r.innerHTML=`<div style="background:rgba(0,212,180,0.06);border:1px solid rgba(0,212,180,0.18);border-radius:10px;padding:1rem">
       <p style="font-size:.8rem;color:var(--tx);margin-bottom:.65rem">✅ Location: <strong style="color:var(--teal)">${lat.toFixed(4)}, ${lng.toFixed(4)}</strong></p>
-      <a href="https://www.google.com/maps/search/hospital+near+me/@${lat},${lng},14z" target="_blank" class="cbtn" style="margin-bottom:.5rem;display:flex">🏥 Hospitals Near Me</a>
-      <a href="https://www.google.com/maps/search/general+physician+near+me/@${lat},${lng},15z" target="_blank" class="cbtn" style="margin-bottom:.5rem;display:flex">👨‍⚕️ General Physicians Near Me</a>
-      <a href="https://www.google.com/maps/search/clinic+near+me/@${lat},${lng},15z" target="_blank" class="cbtn" style="display:flex">🏪 Clinics Near Me</a>
+      <a href="https://www.google.com/maps/search/hospital+near+me/@${lat},${lng},14z" target="_blank" class="cbtn" style="margin-bottom:.5rem;display:flex">Hospitals Near Me</a>
+      <a href="https://www.google.com/maps/search/general+physician+near+me/@${lat},${lng},15z" target="_blank" class="cbtn" style="margin-bottom:.5rem;display:flex">General Physicians Near Me</a>
+      <a href="https://www.google.com/maps/search/clinic+near+me/@${lat},${lng},15z" target="_blank" class="cbtn" style="display:flex">Clinics Near Me</a>
     </div>`;
     document.getElementById('clinicNote').textContent='Google Maps will show real-time ratings, distance, and directions.';
   },()=>showFallback(r));
@@ -1435,9 +1510,9 @@ function findClinics(){
 function showFallback(r){
   r.innerHTML=`<div style="background:rgba(59,158,255,0.06);border:1px solid rgba(59,158,255,0.18);border-radius:10px;padding:.9rem">
     <p style="font-size:.78rem;color:var(--mu2);margin-bottom:.65rem">Location access denied. Search manually:</p>
-    <a href="https://www.google.com/maps/search/hospital+near+me" target="_blank" class="cbtn" style="margin-bottom:.45rem;display:flex">🏥 Search Hospitals</a>
-    <a href="https://www.google.com/maps/search/general+physician+near+me" target="_blank" class="cbtn" style="margin-bottom:.45rem;display:flex">👨‍⚕️ Find Physicians</a>
-    <a href="https://www.practo.com" target="_blank" class="cbtn" style="display:flex">💊 Book on Practo</a>
+    <a href="https://www.google.com/maps/search/hospital+near+me" target="_blank" class="cbtn" style="margin-bottom:.45rem;display:flex">Search Hospitals</a>
+    <a href="https://www.google.com/maps/search/general+physician+near+me" target="_blank" class="cbtn" style="margin-bottom:.45rem;display:flex">Find Physicians</a>
+    <a href="https://www.practo.com" target="_blank" class="cbtn" style="display:flex">Book on Practo</a>
   </div>`;
 }
 
@@ -1604,9 +1679,9 @@ function genPDF(){
     doc.text(`Page 1  |  AI Health Analyzer  |  github.com/Sensei017/ai-health-analyzer`,W/2,y+5,{align:'center'});
 
     doc.save(`AI-Health-Report-${new Date().toISOString().slice(0,10)}.pdf`);
-    showToast('📄 PDF report downloaded!');
+    showToast('PDF report downloaded');
   }catch(e){
-    showToast('⚠️ PDF library loading... try again in a moment');
+    showToast('PDF generating... try again in a moment');
     console.error(e);
   }
 }
@@ -1641,7 +1716,7 @@ function genCSV(){
   const a=document.createElement('a');a.href=url;
   a.download=`AI-Health-Report-${new Date().toISOString().slice(0,10)}.csv`;
   a.click();URL.revokeObjectURL(url);
-  showToast('📊 Excel/CSV report downloaded!');
+  showToast('Excel/CSV report downloaded');
 }
 
 // ══════════════════════════════════
