@@ -1589,94 +1589,310 @@ function genPDF(){
   try{
     const{jsPDF}=window.jspdf;
     const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-    const W=210,M=18,CW=W-M*2;
-    let y=0;
+    const W=210, M=20, CW=W-M*2;
+    let y=0, pageNum=1;
 
-    // Helpers
-    const line=(yy,c='#1a2e44')=>{doc.setDrawColor(c);doc.setLineWidth(0.3);doc.line(M,yy,W-M,yy);};
-    const rect=(x,yy,w,h,c)=>{doc.setFillColor(c);doc.rect(x,yy,w,h,'F');};
-    const txt=(t,x,yy,sz,bold,c='#e2eaf7')=>{
-      doc.setFontSize(sz);doc.setFont('helvetica',bold?'bold':'normal');doc.setTextColor(c);doc.text(String(t),x,yy);
+    // ── COLOR PALETTE (light/clean) ──
+    const CLR={
+      bg:'#ffffff', dark:'#0a0f1e', mid:'#1e2d4a',
+      cyan:'#0077cc', magenta:'#cc0077', purple:'#5500bb',
+      muted:'#6b7a99', light:'#f4f6fa', border:'#dde3f0',
+      red:'#cc0033', green:'#006633', amber:'#8a6500',
+      rowA:'#f8faff', rowB:'#ffffff'
     };
 
-    // Cover
-    rect(0,0,W,60,'#04080f');
-    rect(0,0,W,2,'#00d4b4');
-    txt('AI Health Analyzer',W/2,22,22,true,'#00d4b4');doc.setFont('helvetica','normal');
-    doc.setFontSize(11);doc.setTextColor('#8899bb');doc.text('Genetic Risk & Lifestyle Predictor — Personal Health Report',W/2,30,{align:'center'});
-    doc.setFontSize(9);doc.setTextColor('#637a99');
-    doc.text(`Generated: ${new Date().toLocaleString()}`,W/2,38,{align:'center'});
-    doc.text(`Patient: ${_data.age}yr ${_data.sex}  |  ${_data.height}cm / ${_data.weight}kg  |  BMI ${_data.bmi}`,W/2,44,{align:'center'});
-    rect(0,58,W,2,'#8b5cf6');
-    y=72;
+    // ── HELPERS ──
+    const setFont=(sz,bold,color)=>{
+      doc.setFontSize(sz);
+      doc.setFont('helvetica',bold?'bold':'normal');
+      doc.setTextColor(color||CLR.dark);
+    };
+    const fillRect=(x,yy,w,h,color)=>{
+      doc.setFillColor(color);doc.rect(x,yy,w,h,'F');
+    };
+    const drawLine=(yy,color,lw=0.25)=>{
+      doc.setDrawColor(color||CLR.border);doc.setLineWidth(lw);doc.line(M,yy,W-M,yy);
+    };
+    const drawRect=(x,yy,w,h,color,lw=0.3)=>{
+      doc.setDrawColor(color);doc.setLineWidth(lw);doc.rect(x,yy,w,h,'S');
+    };
+    const checkPage=(needed=20)=>{
+      if(y+needed>278){
+        // footer on current page
+        drawPageFooter();
+        doc.addPage();
+        pageNum++;
+        drawPageHeader();
+        y=36;
+      }
+    };
 
-    // Overall Score
+    const drawPageHeader=()=>{
+      fillRect(0,0,W,12,CLR.cyan);
+      setFont(7,true,'#ffffff');
+      doc.text('AI HEALTH ANALYZER',M,8);
+      doc.text('CONFIDENTIAL HEALTH REPORT',W-M,8,{align:'right'});
+    };
+
+    const drawPageFooter=()=>{
+      drawLine(285,CLR.border);
+      setFont(7,false,CLR.muted);
+      doc.text('AI Health Analyzer — For educational purposes only. Not a substitute for professional medical advice.',M,289);
+      doc.text(`Page ${pageNum}`,W-M,289,{align:'right'});
+    };
+
+    const sectionTitle=(text,yy)=>{
+      setFont(9,true,CLR.cyan);
+      doc.text(text.toUpperCase(),M,yy);
+      doc.setDrawColor(CLR.cyan);doc.setLineWidth(0.4);
+      doc.line(M,yy+1.5,W-M,yy+1.5);
+    };
+
+    // ══════════════════════════════
+    // PAGE 1 — COVER
+    // ══════════════════════════════
+    // Top accent bar
+    fillRect(0,0,W,2,CLR.cyan);
+    fillRect(0,2,W,1,CLR.magenta);
+
+    // Header block
+    fillRect(0,3,W,52,'#f8faff');
+    fillRect(0,55,W,1,CLR.border);
+
+    // Title
+    setFont(28,true,CLR.dark);
+    doc.text('AI HEALTH ANALYZER',W/2,24,{align:'center'});
+
+    setFont(11,false,CLR.muted);
+    doc.text('Genetic Risk & Lifestyle Predictor',W/2,32,{align:'center'});
+
+    // Divider dots
+    setFont(8,false,CLR.border);
+    doc.text('— — — — — — — — — — — — — —',W/2,37,{align:'center'});
+
+    setFont(8,false,CLR.muted);
+    doc.text(`Generated: ${new Date().toLocaleString()}`,W/2,43,{align:'center'});
+    doc.text(`Patient Profile: ${_data.age} yrs  |  ${_data.sex}  |  ${_data.height} cm  |  ${_data.weight} kg  |  BMI ${_data.bmi}`,W/2,49,{align:'center'});
+
+    y=68;
+
+    // ── OVERALL RISK SCORE BLOCK ──
     const rk=rlevel(_overall);
-    rect(M,y,CW,28,'#0c1220');
-    txt(`Overall Risk Score: ${_overall}%`,M+6,y+10,16,true,rk.c==='var(--green)'?'#22d3a0':rk.c==='var(--amber)'?'#f5a623':rk.c==='var(--red)'?'#ff5252':'#ff0000');
-    txt(rk.l,M+6,y+18,10,false,'#8899bb');
-    txt(overallDesc(_data,_overall).slice(0,100)+'...',M+6,y+24,8,false,'#637a99');
-    y+=34;
+    const rCol=_overall<25?CLR.green:_overall<50?CLR.amber:_overall<75?CLR.red:'#990022';
 
-    // BMI
-    txt('BMI Analysis',M,y,12,true,'#00d4b4');y+=6;
-    const bmiCol=_data.bmi<18.5?'#3b9eff':_data.bmi<25?'#22d3a0':_data.bmi<30?'#f5a623':'#ff5252';
-    const bmiCat=_data.bmi<18.5?'Underweight':_data.bmi<25?'Normal':_data.bmi<30?'Overweight':'Obese';
-    txt(`BMI: ${_data.bmi}  —  ${bmiCat}`,M,y,10,true,bmiCol);y+=10;
+    fillRect(M,y,CW,32,rCol==='#990022'?'#fff0f2':_overall<25?'#f0fff8':_overall<50?'#fffbf0':'#fff0f2');
+    drawRect(M,y,CW,32,rCol);
 
-    // Disease Scores
-    txt('Disease Risk Breakdown',M,y,12,true,'#00d4b4');y+=7;
-    Object.values(_results).sort((a,b)=>b.score-a.score).forEach(r=>{
-      if(y>270){doc.addPage();y=20;}
-      rect(M,y-4,CW,8,'#0c1220');
-      const dc=r.col.startsWith('#')?r.col:'#00d4b4';
-      txt(`${r.icon} ${r.name}`,M+3,y+1,9,true,dc);
-      txt(`${r.score}%`,W-M-8,y+1,9,true,dc);
-      txt(r.factors.slice(0,3).join(' · ')||'No major factors',M+3,y+5.5,7,false,'#637a99');
-      y+=12;
+    // Left: big score
+    setFont(36,true,rCol);
+    doc.text(`${_overall}%`,M+8,y+22);
+
+    // Vertical divider
+    doc.setDrawColor(rCol);doc.setLineWidth(0.3);
+    doc.line(M+32,y+5,M+32,y+27);
+
+    // Right: label + desc
+    setFont(13,true,rCol);
+    doc.text(rk.l.toUpperCase(),M+37,y+13);
+    setFont(8,false,'#444455');
+    const descLines=doc.splitTextToSize(overallDesc(_data,_overall),CW-40);
+    doc.text(descLines.slice(0,2),M+37,y+20);
+
+    y+=40;
+
+    // ── BMI SECTION ──
+    checkPage(30);
+    sectionTitle('BMI Analysis',y);y+=8;
+
+    const bmiCol=_data.bmi<18.5?CLR.cyan:_data.bmi<25?CLR.green:_data.bmi<30?CLR.amber:CLR.red;
+    const bmiCat=_data.bmi<18.5?'Underweight':_data.bmi<25?'Normal Weight':_data.bmi<30?'Overweight':'Obese';
+
+    fillRect(M,y,CW,14,CLR.rowA);
+    drawRect(M,y,CW,14,CLR.border);
+
+    // BMI value box
+    fillRect(M,y,28,14,bmiCol);
+    setFont(16,true,'#ffffff');
+    doc.text(String(_data.bmi),M+14,y+10,{align:'center'});
+
+    setFont(10,true,bmiCol);
+    doc.text(bmiCat,M+33,y+7);
+    setFont(8,false,CLR.muted);
+    const bmiMsg=_data.bmi<18.5?'Below healthy range. Focus on calorie-dense nutritious foods.':
+      _data.bmi<25?'Within the healthy range (18.5-24.9). Maintain your current habits.':
+      _data.bmi<30?'Above healthy range. Aim to lose 5-10% body weight gradually.':
+      'Obese range. Start a supervised weight management program immediately.';
+    doc.text(bmiMsg,M+33,y+12,{maxWidth:CW-38});
+    y+=22;
+
+    // ── DISEASE RISK BREAKDOWN ──
+    checkPage(15);
+    sectionTitle('Disease Risk Breakdown',y);y+=8;
+
+    // Table header
+    fillRect(M,y,CW,8,CLR.dark);
+    setFont(8,true,'#ffffff');
+    doc.text('CONDITION',M+4,y+5.5);
+    doc.text('RISK SCORE',M+90,y+5.5);
+    doc.text('LEVEL',M+118,y+5.5);
+    doc.text('KEY RISK FACTORS',M+140,y+5.5);
+    y+=8;
+
+    Object.values(_results).sort((a,b)=>b.score-a.score).forEach((r,i)=>{
+      checkPage(12);
+      const rowBg=i%2===0?CLR.rowA:CLR.rowB;
+      const dc=r.col.startsWith('#')?r.col:CLR.cyan;
+      const rl=r.score<25?'Low':r.score<50?'Moderate':r.score<75?'High':'Critical';
+      const rlCol=r.score<25?CLR.green:r.score<50?CLR.amber:r.score<75?CLR.red:'#990022';
+
+      fillRect(M,y,CW,10,rowBg);
+      drawRect(M,y,CW,10,CLR.border,0.2);
+
+      // Score color bar on left
+      fillRect(M,y,3,10,dc);
+
+      // Disease name
+      setFont(8,true,CLR.dark);
+      doc.text(r.name,M+6,y+6.5);
+
+      // Score with bar
+      const barW=40;const filled=(r.score/100)*barW;
+      fillRect(M+88,y+3,barW,4,'#e8ecf4');
+      fillRect(M+88,y+3,filled,4,dc);
+      setFont(9,true,dc);
+      doc.text(`${r.score}%`,M+88+barW+3,y+6.5);
+
+      // Risk level badge
+      fillRect(M+116,y+2,20,6,rlCol);
+      setFont(6,true,'#ffffff');
+      doc.text(rl.toUpperCase(),M+126,y+6.5,{align:'center'});
+
+      // Factors
+      setFont(6.5,false,CLR.muted);
+      const facts=r.factors.slice(0,2).join(', ')||'No major factors';
+      doc.text(facts,M+140,y+6.5,{maxWidth:CW-122});
+
+      y+=11;
     });
 
-    // Lifestyle Summary
-    if(y>240){doc.addPage();y=20;}
-    y+=4;txt('Lifestyle Data Summary',M,y,12,true,'#00d4b4');y+=7;
-    const ld=[
-      ['Sleep',`${_data.sleep}h/night`,_data.sleep<6?'⚠️ Too Low':'✅'],
-      ['Exercise',_data.exercise,_data.exercise==='Rarely/Never'?'⚠️ Sedentary':'✅'],
-      ['Water',_data.water,_data.water==='Under 1L'?'⚠️ Low':'✅'],
-      ['Smoking',_data.smoking,_data.smoking==='Daily Smoker'?'🚨 High Risk':'✅'],
-      ['Alcohol',_data.alcohol,_data.alcohol==='Daily'?'🚨 High Risk':'✅'],
-      ['Junk Food',_data.junkfood,_data.junkfood==='Daily'?'⚠️ Too Often':'✅'],
-      ['Stress Level',`${_data.stress}/10`,_data.stress>7?'⚠️ High':'✅'],
-      ['Sitting',`${_data.sitting}h/day`,_data.sitting>8?'⚠️ Too Much':'✅'],
+    y+=4;
+
+    // ── LIFESTYLE DATA ──
+    checkPage(15);
+    sectionTitle('Lifestyle Data Summary',y);y+=8;
+
+    // Table header
+    fillRect(M,y,CW,7,CLR.dark);
+    setFont(7,true,'#ffffff');
+    doc.text('METRIC',M+4,y+5);
+    doc.text('YOUR DATA',M+60,y+5);
+    doc.text('STATUS',M+110,y+5);
+    doc.text('RECOMMENDATION',M+140,y+5);
+    y+=7;
+
+    const statusRec=[
+      ['Sleep Duration',`${_data.sleep}h / night`,
+        _data.sleep>=7?'GOOD':_data.sleep>=6?'LOW':'POOR',
+        _data.sleep>=7?'Within recommended range':'Adults need 7-9 hours of sleep nightly'],
+      ['Physical Activity',_data.exercise,
+        _data.exercise==='Daily'||_data.exercise==='3-5x/week'?'GOOD':_data.exercise==='1-2x/week'?'LOW':'POOR',
+        _data.exercise==='Rarely/Never'?'Start with 20-min daily walks immediately':'Aim for 150 min/week moderate activity'],
+      ['Water Intake',_data.water,
+        _data.water==='3L+'||_data.water==='2-3 Litres'?'GOOD':_data.water==='1-2 Litres'?'LOW':'POOR',
+        _data.water==='Under 1L'?'Drink minimum 2L daily — set phone reminders':'Maintain hydration levels'],
+      ['Smoking',_data.smoking,
+        _data.smoking==='Never Smoked'?'GOOD':_data.smoking==='Ex-Smoker'?'LOW':_data.smoking==='Occasional'?'RISK':'HIGH RISK',
+        _data.smoking==='Daily Smoker'||_data.smoking==='Occasional'?'Quit immediately — seek nicotine replacement therapy':'No action required'],
+      ['Alcohol',_data.alcohol,
+        _data.alcohol==='None'?'GOOD':_data.alcohol==='Occasionally'?'LOW':_data.alcohol==='Weekly'?'RISK':'HIGH RISK',
+        _data.alcohol==='Daily'?'Reduce immediately — liver and heart at risk':_data.alcohol==='Weekly'?'Limit to occasional social drinking only':'No action required'],
+      ['Junk Food',_data.junkfood,
+        _data.junkfood==='Rarely'?'GOOD':_data.junkfood==='1-2x/week'?'LOW':_data.junkfood==='3-5x/week'?'RISK':'HIGH RISK',
+        _data.junkfood==='Daily'?'Replace 1 junk meal daily with home-cooked food':'Reduce processed food and increase vegetables'],
+      ['Stress Level',`${_data.stress} / 10`,
+        _data.stress<=4?'GOOD':_data.stress<=6?'MODERATE':_data.stress<=8?'HIGH':'CRITICAL',
+        _data.stress>7?'Practice 10 min deep breathing daily — consult if persistent':'Maintain stress management practices'],
+      ['Daily Sitting',`${_data.sitting}h / day`,
+        _data.sitting<=5?'GOOD':_data.sitting<=7?'MODERATE':_data.sitting<=9?'HIGH':'CRITICAL',
+        _data.sitting>8?'Set a 45-min timer to stand and walk — prolonged sitting is dangerous':'Try to incorporate movement breaks'],
     ];
-    ld.forEach(([k,v,flag],i)=>{
-      if(y>270){doc.addPage();y=20;}
-      rect(M,y-3.5,CW,7,i%2===0?'#0c1220':'#111c2e');
-      txt(k,M+3,y+1,8,true,'#8899bb');
-      txt(v,M+45,y+1,8,false,'#e2eaf7');
-      txt(flag,W-M-18,y+1,8,false,'#e2eaf7');
-      y+=8;
+
+    const statusColors={'GOOD':CLR.green,'LOW':CLR.amber,'MODERATE':CLR.amber,'RISK':CLR.red,'HIGH':CLR.red,'POOR':CLR.red,'HIGH RISK':'#990022','CRITICAL':'#990022'};
+
+    statusRec.forEach(([metric,val,status,rec],i)=>{
+      checkPage(10);
+      fillRect(M,y,CW,9,i%2===0?CLR.rowA:CLR.rowB);
+      drawRect(M,y,CW,9,CLR.border,0.2);
+
+      setFont(7.5,true,CLR.dark);doc.text(metric,M+4,y+6);
+      setFont(7.5,false,CLR.dark);doc.text(val,M+60,y+6);
+
+      const sc=statusColors[status]||CLR.muted;
+      fillRect(M+108,y+2,24,5,sc);
+      setFont(6,true,'#ffffff');doc.text(status,M+120,y+6,{align:'center'});
+
+      setFont(6.5,false,CLR.muted);doc.text(rec,M+136,y+6,{maxWidth:CW-118});
+      y+=10;
     });
 
-    // Other disease
+    y+=4;
+
+    // ── MEDICAL HISTORY ──
+    checkPage(25);
+    sectionTitle('Medical History',y);y+=8;
+
+    fillRect(M,y,CW,10,CLR.rowA);drawRect(M,y,CW,10,CLR.border,0.2);
+    setFont(7.5,true,CLR.dark);doc.text('Family History',M+4,y+4.5);
+    setFont(7.5,false,CLR.dark);
+    const fhText=_data.fh.length>0?_data.fh.join(', '):'None reported';
+    doc.text(fhText,M+50,y+4.5,{maxWidth:CW-55});
+    y+=11;
+
+    fillRect(M,y,CW,10,CLR.rowB);drawRect(M,y,CW,10,CLR.border,0.2);
+    setFont(7.5,true,CLR.dark);doc.text('Current Symptoms',M+4,y+4.5);
+    setFont(7.5,false,CLR.dark);
+    const ccText=_data.cc.length>0?_data.cc.join(', '):'None reported';
+    doc.text(ccText,M+50,y+4.5,{maxWidth:CW-55});
+    y+=11;
+
+    fillRect(M,y,CW,8,CLR.rowA);drawRect(M,y,CW,8,CLR.border,0.2);
+    setFont(7.5,true,CLR.dark);doc.text('Doctor Visits',M+4,y+5.5);
+    setFont(7.5,false,CLR.dark);doc.text(_data.doctorVisit,M+50,y+5.5);
+    y+=9;
+
+    // ── OTHER CONDITION ──
     if(_data.hasOther==='Yes, I do'&&_data.otherName){
-      if(y>240){doc.addPage();y=20;}
-      y+=4;txt(`Other Condition: ${_data.otherName}`,M,y,12,true,'#a78bfa');y+=6;
-      txt(`Treatment: ${_data.otherTreatment}`,M,y,9,false,'#8899bb');y+=6;
+      checkPage(20);
+      y+=3;sectionTitle('Additional Condition',y);y+=8;
+      fillRect(M,y,CW,10,CLR.rowA);drawRect(M,y,CW,10,CLR.border,0.2);
+      setFont(7.5,true,CLR.dark);doc.text('Condition',M+4,y+4.5);
+      setFont(7.5,true,CLR.purple);doc.text(_data.otherName,M+50,y+4.5);
+      setFont(7.5,false,CLR.muted);doc.text(`Treatment: ${_data.otherTreatment}`,M+120,y+4.5);
+      y+=11;
       if(_data.otherDesc){
-        const wrapped=doc.splitTextToSize(_data.otherDesc,CW);
-        doc.setFontSize(8);doc.setTextColor('#637a99');doc.text(wrapped,M,y);
-        y+=wrapped.length*4+4;
+        fillRect(M,y,CW,12,CLR.rowB);drawRect(M,y,CW,12,CLR.border,0.2);
+        setFont(7.5,true,CLR.dark);doc.text('Notes',M+4,y+5);
+        setFont(7,false,CLR.muted);
+        const descW=doc.splitTextToSize(_data.otherDesc,CW-55);
+        doc.text(descW.slice(0,2),M+50,y+5);
+        y+=13;
       }
     }
 
-    // Footer
-    if(y>255){doc.addPage();y=20;}
-    y=Math.max(y+8,260);
-    line(y,'#1a2e44');y+=5;
-    doc.setFontSize(7);doc.setTextColor('#637a99');doc.setFont('helvetica','normal');
-    doc.text('This report is generated by AI Health Analyzer for educational purposes only. Not a substitute for professional medical advice.',M,y,{maxWidth:CW});
-    doc.text(`Page 1  |  AI Health Analyzer  |  github.com/Sensei017/ai-health-analyzer`,W/2,y+5,{align:'center'});
+    // ── DISCLAIMER BOX ──
+    checkPage(22);
+    y+=5;
+    fillRect(M,y,CW,18,'#fff8f0');
+    drawRect(M,y,CW,18,CLR.amber,0.4);
+    fillRect(M,y,3,18,CLR.amber);
+    setFont(7.5,true,CLR.amber);doc.text('DISCLAIMER',M+7,y+6);
+    setFont(7,false,'#4a3800');
+    doc.text('This report is generated by an AI Expert System for educational and informational purposes only.',M+7,y+11,{maxWidth:CW-12});
+    doc.text('It is NOT a substitute for professional medical advice. Always consult a qualified physician.',M+7,y+16,{maxWidth:CW-12});
+    y+=22;
+
+    // Draw footer on last page
+    drawPageFooter();
 
     doc.save(`AI-Health-Report-${new Date().toISOString().slice(0,10)}.pdf`);
     showToast('PDF report downloaded');
